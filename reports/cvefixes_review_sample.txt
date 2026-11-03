@@ -1,0 +1,1979 @@
+CVEfixes review sample. For each function decide a verdict (see rubric at the bottom).
+
+========================================================================
+#1   label: 1  (BEFORE the fix)
+project: clickhouse-driver   commit: d708ed548e1d6f254ba81a21de8ba543a53b5598
+CVE: CVE-2020-26759   CWE: CWE-120   function: __pyx_pymod_exec_varint   file: varint.c
+label-1 functions changed in this commit: 6
+------------------------------------------------------------------------
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_varint(PyObject *__pyx_pyinit_module)
+#endif
+#endif
+{
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannyDeclarations
+  #if CYTHON_PEP489_MULTI_PHASE_INIT
+  if (__pyx_m) {
+    if (__pyx_m == __pyx_pyinit_module) return 0;
+    PyErr_SetString(PyExc_RuntimeError, "Module 'varint' has already been imported. Re-initialisation is not supported.");
+    return -1;
+  }
+  #elif PY_MAJOR_VERSION >= 3
+  if (__pyx_m) return __Pyx_NewRef(__pyx_m);
+  #endif
+  #if CYTHON_REFNANNY
+__Pyx_RefNanny = __Pyx_RefNannyImportAPI("refnanny");
+if (!__Pyx_RefNanny) {
+  PyErr_Clear();
+  __Pyx_RefNanny = __Pyx_RefNannyImportAPI("Cython.Runtime.refnanny");
+  if (!__Pyx_RefNanny)
+      Py_FatalError("failed to import 'refnanny' module");
+}
+#endif
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_varint(void)", 0);
+  if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #ifdef __Pxy_PyFrame_Initialize_Offsets
+  __Pxy_PyFrame_Initialize_Offsets();
+  #endif
+  __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_empty_unicode = PyUnicode_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_unicode)) __PYX_ERR(0, 1, __pyx_L1_error)
+  #ifdef __Pyx_CyFunction_USED
+  if (__pyx_CyFunction_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  #ifdef __Pyx_FusedFunction_USED
+
+    ...[cut, 6,838 characters in total]
+
+========================================================================
+#2   label: 0  (AFTER the fix)
+project: linux   commit: 6709d4b7bc2e079241fdef15d1160581c5261c10
+CVE: CVE-2023-3863   CWE: CWE-416   function: nfc_llcp_remove_local   file: llcp_core.c
+label-1 functions changed in this commit: 8
+------------------------------------------------------------------------
+static struct nfc_llcp_local *nfc_llcp_remove_local(struct nfc_dev *dev)
+{
+	struct nfc_llcp_local *local, *tmp;
+
+	spin_lock(&llcp_devices_lock);
+	list_for_each_entry_safe(local, tmp, &llcp_devices, list)
+		if (local->dev == dev) {
+			list_del(&local->list);
+			spin_unlock(&llcp_devices_lock);
+			return local;
+		}
+	spin_unlock(&llcp_devices_lock);
+
+	pr_warn("Shutting down device not found\n");
+
+	return NULL;
+}
+
+========================================================================
+#3   label: 0  (AFTER the fix)
+project: cyclonetcp   commit: de5336016edbe1e90327d0ed1cba5c4e49114366
+CVE: CVE-2021-26788   CWE: CWE-20   function: xmc4400EthWritePhyReg   file: xmc4400_eth_driver.c
+label-1 functions changed in this commit: 98
+------------------------------------------------------------------------
+void xmc4400EthWritePhyReg(uint8_t opcode, uint8_t phyAddr,
+   uint8_t regAddr, uint16_t data)
+{
+   uint32_t temp;
+
+   //Valid opcode?
+   if(opcode == SMI_OPCODE_WRITE)
+   {
+      //Take care not to alter MDC clock configuration
+      temp = ETH0->GMII_ADDRESS & ETH_GMII_ADDRESS_CR_Msk;
+      //Set up a write operation
+      temp |= ETH_GMII_ADDRESS_MW_Msk | ETH_GMII_ADDRESS_MB_Msk;
+      //PHY address
+      temp |= (phyAddr << ETH_GMII_ADDRESS_PA_Pos) & ETH_GMII_ADDRESS_PA_Msk;
+      //Register address
+      temp |= (regAddr << ETH_GMII_ADDRESS_MR_Pos) & ETH_GMII_ADDRESS_MR_Msk;
+
+      //Data to be written in the PHY register
+      ETH0->GMII_DATA = data & ETH_GMII_DATA_MD_Msk;
+
+      //Start a write operation
+      ETH0->GMII_ADDRESS = temp;
+      //Wait for the write to complete
+      while((ETH0->GMII_ADDRESS & ETH_GMII_ADDRESS_MB_Msk) != 0)
+      {
+      }
+   }
+   else
+   {
+      //The MAC peripheral only supports standard Clause 22 opcodes
+   }
+}
+
+========================================================================
+#4   label: 0  (AFTER the fix)
+project: fast-dds   commit: 072cbc9d6a71d869a5cbed1873c0cdd6cf67cda4
+CVE: CVE-2023-50257   CWE: CWE-284   function: TEST_F   file: SecurityAuthenticationTests.cpp
+label-1 functions changed in this commit: 6
+------------------------------------------------------------------------
+TEST_F(SecurityAuthenticationTest, discovered_participant_process_message_pending_handshake_reply_ok_with_final_message)
+{
+    initialization_ok();
+
+    MockIdentityHandle identity_handle;
+    MockIdentityHandle* p_identity_handle = &identity_handle;
+
+    EXPECT_CALL(*auth_plugin_, validate_remote_identity_rvr(_,_,_,_,_)).Times(1).
+        WillOnce(DoAll(SetArgPointee<0>(p_identity_handle), Return(ValidationResult_t::VALIDATION_PENDING_HANDSHAKE_MESSAGE)));
+
+    GUID_t remote_participant_key;
+    fill_participant_key(remote_participant_key);
+    ASSERT_TRUE(manager_.discovered_participant(IdentityToken(), remote_participant_key));
+
+    ParticipantGenericMessage message;
+    message.message_identity().source_guid(remote_participant_key);
+    message.destination_participant_key(remote_participant_key);
+    message.message_class_id("dds.sec.auth");
+    HandshakeMessageToken token;
+    message.message_data().push_back(token);
+    CacheChange_t* change = new CacheChange_t(ParticipantGenericMessageHelper::serialized_size(message));
+    CDRMessage_t aux_msg(0);
+    aux_msg.wraps = true;
+    aux_msg.buffer = change->serializedPayload.data;
+    aux_msg.max_size = change->serializedPayload.max_size;
+    aux_msg.msg_endian = change->serializedPayload.encapsulation == PL_CDR_BE ? BIGEND : LITTLEEND;
+    ASSERT_TRUE(CDRMessage::addParticipantGenericMessage(&aux_msg, message));
+    change->serializedPayload.length = aux_msg.length;
+
+    MockHandshakeHandle handshake_handle;
+    MockHandsha
+    ...[cut, 2,644 characters in total]
+
+========================================================================
+#5   label: 1  (BEFORE the fix)
+project: jsish   commit: 430ea27accd4d4ffddc946c9402e7c9064835a18
+CVE: CVE-2020-22873   CWE: CWE-120   function: jsi_GetHomeDir   file: jsiFilesys.c
+label-1 functions changed in this commit: 48
+------------------------------------------------------------------------
+const char *jsi_GetHomeDir(Jsi_Interp *interp) {
+    const char *str = NULL;
+    if (interp->homeDir)
+        return interp->homeDir;
+#ifdef __WIN32
+    str = getenv("USERPROFILE"); /* TODO: windows home dir. */
+#else
+        
+    if ((str = getenv("HOME")) == NULL) {
+        struct passwd pwd, *pw;
+        char buf[20000];
+        if (getpwuid_r(getuid(), &pwd, buf, sizeof(buf), &pw) == 0 && pw->pw_dir)        
+            str = pw->pw_dir;
+    }
+#endif
+    if (!str) {
+        Jsi_LogBug("no home dir");
+        str = "/";
+    }
+#ifdef JSI_LITE_ONLY
+    return str;
+#else
+    return (interp->homeDir = Jsi_KeyAdd(interp, str));
+#endif
+}
+
+========================================================================
+#6   label: 0  (AFTER the fix)
+project: tigervnc   commit: 0943c006c7d900dfc0281639e992791d6c567438
+CVE: CVE-2019-15694   CWE: CWE-787   function: ObfuscatedPasswd::ObfuscatedPasswd   file: Password.cxx
+label-1 functions changed in this commit: 64
+------------------------------------------------------------------------
+ObfuscatedPasswd::ObfuscatedPasswd(size_t len) : CharArray(len), length(len) {
+}
+
+========================================================================
+#7   label: 0  (AFTER the fix)
+project: tensorflow   commit: e8dc63704c88007ee4713076605c90188d66f3d2
+CVE: CVE-2021-41203   CWE: CWE-190   function: tensorflow::TensorSlice::BuildTensorSlice   file: tensor_slice.cc
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+Status TensorSlice::BuildTensorSlice(const TensorSliceProto& proto,
+                                     TensorSlice* output) {
+  output->Clear();
+  output->starts_.reserve(proto.extent_size());
+  output->lengths_.reserve(proto.extent_size());
+  for (const auto& e : proto.extent()) {
+    int64_t l = GetExtentLength(e);
+    if (e.start() != 0 || l != kFullExtent) {
+      if (e.start() < 0 || l <= 0) {
+        return errors::InvalidArgument(
+            "Expected non-negative start and positive length but got start = ",
+            e.start(), ", length = ", l, ": extent = ", e.ShortDebugString());
+      }
+      // Calculating the extent end must not cause signed integer overflow.
+      if (static_cast<uint64_t>(e.start()) + static_cast<uint64_t>(e.length()) >
+          std::numeric_limits<int64_t>::max()) {
+        return errors::InvalidArgument(
+            "Extent end exceeds the maximum possible size: extent = ",
+            e.ShortDebugString());
+      }
+    }
+    output->starts_.push_back(e.start());
+    output->lengths_.push_back(l);
+  }
+
+  return Status::OK();
+}
+
+========================================================================
+#8   label: 0  (AFTER the fix)
+project: open5gs   commit: 2f8ae91b0b9467f94f128090c88cae91bd73e008
+CVE: CVE-2024-40130   CWE: NVD-CWE-noinfo   function: app_initialize   file: 5gc-init.c
+label-1 functions changed in this commit: 11
+------------------------------------------------------------------------
+int app_initialize(const char *const argv[])
+{
+    const char *argv_out[OGS_ARG_MAX];
+    bool user_config = false;
+    int i = 0;
+
+    for (i = 0; argv[i] && i < OGS_ARG_MAX-3; i++) {
+        if (strcmp("-c", argv[i]) == 0) {
+            user_config = true; 
+        }
+        argv_out[i] = argv[i];
+    }
+    argv_out[i] = NULL;
+
+    if (!user_config) {
+        argv_out[i++] = "-c";
+        argv_out[i++] = DEFAULT_CONFIG_FILENAME;
+        argv_out[i] = NULL;
+    }
+
+    if (ogs_app()->parameter.no_nrf == 0)
+        nrf_thread = test_child_create("nrf", argv_out);
+    if (ogs_app()->parameter.no_scp == 0)
+        scp_thread = test_child_create("scp", argv_out);
+
+    if (ogs_app()->parameter.no_upf == 0)
+        upf_thread = test_child_create("upf", argv_out);
+    if (ogs_app()->parameter.no_smf == 0)
+        smf_thread = test_child_create("smf", argv_out);
+
+    if (ogs_app()->parameter.no_amf == 0)
+        amf_thread = test_child_create("amf", argv_out);
+
+    if (ogs_app()->parameter.no_ausf == 0)
+        ausf_thread = test_child_create("ausf", argv_out);
+    if (ogs_app()->parameter.no_udm == 0)
+        udm_thread = test_child_create("udm", argv_out);
+    if (ogs_app()->parameter.no_pcf == 0)
+        pcf_thread = test_child_create("pcf", argv_out);
+    if (ogs_app()->parameter.no_nssf == 0)
+        nssf_thread = test_child_create("nssf", argv_out);
+    if (ogs_app()->parameter.no_bsf == 0)
+        bsf_thread = test_child_create("bsf", argv_out);
+    if (ogs_app()->parameter.no
+    ...[cut, 1,749 characters in total]
+
+========================================================================
+#9   label: 0  (AFTER the fix)
+project: ssh2   commit: f763271f41320e71d5cbee02ea5bc6a2ded3ca21
+CVE: CVE-2020-26301   CWE: CWE-78   function: AESGCMCipher::encrypt   file: binding.cc
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+  ErrorType encrypt(unsigned char* packet, uint32_t packet_len) {
+    ErrorType r = kErrNone;
+
+    // `packet` layout:
+    //   <packet length> <padding length> <payload> <padding> <mac>
+    uint32_t data_len = packet_len - 16;
+
+    int outlen = 0;
+
+    // Increment IV
+    unsigned char lastiv[1];
+    if (!EVP_CIPHER_CTX_ctrl(ctx_, EVP_CTRL_GCM_IV_GEN, 1, lastiv)) {
+      r = kErrOpenSSL;
+      goto out;
+    }
+
+    // Set AAD (the packet length)
+    if (!EVP_EncryptUpdate(ctx_, nullptr, &outlen, packet, 4)) {
+      r = kErrOpenSSL;
+      goto out;
+    }
+    if (outlen != 4) {
+      r = kErrAADFailure;
+      goto out;
+    }
+
+    // Encrypt everything but the packet length
+    if (EVP_EncryptUpdate(ctx_,
+                          packet + 4,
+                          &outlen,
+                          packet + 4,
+                          data_len - 4) != 1) {
+      r = kErrOpenSSL;
+      goto out;
+    }
+    if (static_cast<size_t>(outlen) != data_len - 4) {
+      r = kErrPartialEncrypt;
+      goto out;
+    }
+
+    // Generate authentication tag
+    if (!EVP_EncryptFinal_ex(ctx_, nullptr, &outlen)) {
+      r = kErrOpenSSL;
+      goto out;
+    }
+
+    // Write authentication tag
+    if (EVP_CIPHER_CTX_ctrl(ctx_,
+                            EVP_CTRL_AEAD_GET_TAG,
+                            16,
+                            packet + data_len) != 1) {
+      r = kErrOpenSSL;
+      goto out;
+    }
+
+out:
+    return r;
+  }
+
+========================================================================
+#10   label: 1  (BEFORE the fix)
+project: linux   commit: 9cc02ede696272c5271a401e4f27c262359bc2f6
+CVE: CVE-2022-2318   CWE: CWE-416   function: rose_stop_timer   file: rose_timer.c
+label-1 functions changed in this commit: 9
+------------------------------------------------------------------------
+void rose_stop_timer(struct sock *sk)
+{
+	del_timer(&rose_sk(sk)->timer);
+}
+
+========================================================================
+#11   label: 1  (BEFORE the fix)
+project: jsish   commit: 430ea27accd4d4ffddc946c9402e7c9064835a18
+CVE: CVE-2020-22873   CWE: CWE-120   function: jsi_code_decode   file: jsiCode.c
+label-1 functions changed in this commit: 48
+------------------------------------------------------------------------
+void jsi_code_decode(Jsi_Interp *interp, jsi_OpCode *op, int currentip, char *buf, int bsiz)
+{
+    if (_JSICASTINT(op->op) < 0 || op->op >= OP_LASTOP) {
+        snprintf(buf, bsiz, "Bad opcode[%d] at %d", op->op, currentip);
+    }
+    char nbuf[100];
+    snprintf(nbuf, sizeof(nbuf), "%d#%d", currentip, op->Line);
+    snprintf(buf, bsiz, "%-8s %s ", nbuf, jsi_op_names[op->op]);
+
+    int sl = Jsi_Strlen(buf);
+    char *bp = buf + sl;
+    bsiz -= sl;
+    if (op->op == OP_PUSHBOO || op->op == OP_FCALL || op->op == OP_EVAL ||
+        op->op == OP_POP || op->op == OP_ASSIGN ||
+        op->op == OP_RET || op->op == OP_NEWFCALL ||
+        op->op == OP_DELETE || op->op == OP_CHTHIS ||
+        op->op == OP_OBJECT || op->op == OP_ARRAY ||
+        op->op == OP_SHF ||
+        op->op == OP_INC || op->op == OP_DEC) snprintf(bp, bsiz, "%" PRId64, (Jsi_Wide)(uintptr_t)op->data);
+    else if (op->op == OP_PUSHNUM) Jsi_NumberDtoA(interp, *((Jsi_Number *)op->data), bp, bsiz, 0);
+    else if (op->op == OP_PUSHVSTR) {
+        Jsi_String *ss = (Jsi_String*)op->data;
+        snprintf(bp, bsiz, "\"%s\"", ss->str);
+    } else if (op->op == OP_PUSHSTR || op->op == OP_LOCAL ||
+             op->op == OP_SCATCH) snprintf(bp, bsiz, "\"%s\"", op->data ? (char*)op->data:"(NoCatch)");
+    else if (op->op == OP_PUSHVAR) snprintf(bp, bsiz, "var: \"%s\"", ((jsi_FastVar *)op->data)->varname);
+    else if (op->op == OP_PUSHFUN) snprintf(bp, bsiz, "func: 0x%" PRIx64, (Jsi_Wide)(uintptr_t)op->data);
+    else if (op-
+    ...[cut, 2,146 characters in total]
+
+========================================================================
+#12   label: 1  (BEFORE the fix)
+project: quazip   commit: 5d2fc16a1976e5bf78d2927b012f67a2ae047a98
+CVE: CVE-2018-1002209   CWE: CWE-22   function: TestJlCompress::extractDir_data   file: testjlcompress.cpp
+label-1 functions changed in this commit: 3
+------------------------------------------------------------------------
+void TestJlCompress::extractDir_data()
+{
+    QTest::addColumn<QString>("zipName");
+    QTest::addColumn<QStringList>("fileNames");
+    QTest::newRow("simple") << "jlextdir.zip" << (
+            QStringList() << "test0.txt" << "testdir1/test1.txt"
+            << "testdir2/test2.txt" << "testdir2/subdir/test2sub.txt");
+    QTest::newRow("separate dir") << "sepdir.zip" << (
+            QStringList() << "laj/" << "laj/lajfile.txt");
+}
+
+========================================================================
+#13   label: 0  (AFTER the fix)
+project: tensorflow   commit: d0d4e779da0d0f56499c6fa5ba09f0a576cc6b14
+CVE: CVE-2023-25666   CWE: CWE-697   function: tensorflow::ops::TEST   file: spectrogram_op_test.cc
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+TEST(SpectrogramOpTest, InvalidWindowSize) {
+  Scope root = Scope::NewRootScope();
+  const int audio_size = 8;
+  const int channel_size = 2;
+  Tensor audio_tensor(DT_FLOAT, TensorShape({audio_size, channel_size}));
+  test::FillValues<float>(
+      &audio_tensor, {-1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+                      -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f});
+  Output audio_const_op = Const(root.WithOpName("audio_const_op"),
+                                Input::Initializer(audio_tensor));
+  AudioSpectrogram spectrogram_op =
+      AudioSpectrogram(root.WithOpName("spectrogram_op"), audio_const_op,
+                       /*window_size=*/1, /*stride=*/1);
+  EXPECT_THAT(root.status(),
+              tsl::testing::StatusIs(tsl::error::Code::INVALID_ARGUMENT,
+                                     ::testing::ContainsRegex("window size")));
+}
+
+========================================================================
+#14   label: 1  (BEFORE the fix)
+project: vim   commit: b39b240c386a5a29241415541f1c99e2e6b8ce47
+CVE: CVE-2024-22667   CWE: CWE-787   function: set_string_option   file: optionstr.c
+label-1 functions changed in this commit: 19
+------------------------------------------------------------------------
+set_string_option(
+    int		opt_idx,
+    char_u	*value,
+    int		opt_flags,	// OPT_LOCAL and/or OPT_GLOBAL
+    char	*errbuf)
+{
+    char_u	*s;
+    char_u	**varp;
+    char_u	*oldval;
+#if defined(FEAT_EVAL)
+    char_u	*oldval_l = NULL;
+    char_u	*oldval_g = NULL;
+    char_u	*saved_oldval = NULL;
+    char_u	*saved_oldval_l = NULL;
+    char_u	*saved_oldval_g = NULL;
+    char_u	*saved_newval = NULL;
+#endif
+    char	*errmsg = NULL;
+    int		value_checked = FALSE;
+
+    if (is_hidden_option(opt_idx))	// don't set hidden option
+	return NULL;
+
+    s = vim_strsave(value == NULL ? (char_u *)"" : value);
+    if (s == NULL)
+	return NULL;
+
+    varp = (char_u **)get_option_varp_scope(opt_idx,
+	    (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0
+	    ? (is_global_local_option(opt_idx)
+		? OPT_GLOBAL : OPT_LOCAL)
+	    : opt_flags);
+    oldval = *varp;
+#if defined(FEAT_EVAL)
+    if ((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0)
+    {
+	oldval_l = *(char_u **)get_option_varp_scope(opt_idx, OPT_LOCAL);
+	oldval_g = *(char_u **)get_option_varp_scope(opt_idx, OPT_GLOBAL);
+    }
+#endif
+    *varp = s;
+
+#if defined(FEAT_EVAL)
+    if (!starting
+# ifdef FEAT_CRYPT
+	    && !is_crypt_key_option(opt_idx)
+# endif
+       )
+    {
+	if (oldval_l != NULL)
+	    saved_oldval_l = vim_strsave(oldval_l);
+	if (oldval_g != NULL)
+	    saved_oldval_g = vim_strsave(oldval_g);
+	saved_oldval = vim_strsave(oldval);
+	saved_newval = vim_strsave(s);
+    }
+#endif
+    if ((errmsg = did_set_string_option(opt_idx, varp, oldval, value, err
+    ...[cut, 1,969 characters in total]
+
+========================================================================
+#15   label: 1  (BEFORE the fix)
+project: glewlwyd   commit: f9d8c06aae8dfe17e761b18b577ff169e059e812
+CVE: CVE-2023-49208   CWE: CWE-120   function: register_new_attestation   file: webauthn.c
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+static json_t * register_new_attestation(struct config_module * config, json_t * j_params, json_t * j_scheme_data, json_t * j_credential) {
+  json_t * j_return, * j_client_data = NULL, * j_error, * j_result, * j_pubkey = NULL, * j_cert = NULL, * j_query, * j_element = NULL;
+  unsigned char * client_data = NULL, * challenge_b64 = NULL, * att_obj = NULL, * cbor_bs_handle = NULL, rpid_hash[32], * fmt = NULL, * credential_id_b64 = NULL, * cbor_auth_data, * cred_pub_key, cert_x[256], cert_y[256], pubkey_export[1024];
+  char * challenge_hash = NULL, * message = NULL;
+  const char * rpid = NULL;
+  size_t client_data_len = 0, challenge_b64_len = 0, att_obj_len = 0, rpid_hash_len = 32, fmt_len = 0, credential_id_len = 0, credential_id_b64_len, cbor_auth_data_len, cred_pub_key_len, cert_x_len = 0, cert_y_len = 0, pubkey_export_len = 1024, index = 0, cbor_bs_handle_len, rpid_len;
+  uint32_t counter = 0;
+  int ret = G_OK, res, status, has_x = 0, has_y = 0, key_type_valid = 0, key_alg_valid = 0;
+  unsigned int i;
+  struct cbor_load_result cbor_result;
+  cbor_item_t * item = NULL, * key = NULL, * auth_data = NULL, * att_stmt = NULL, * cbor_cose = NULL, * cbor_key, * cbor_value;
+  gnutls_pubkey_t g_key = NULL;
+  gnutls_datum_t g_x, g_y;
+  gnutls_ecc_curve_t curve = GNUTLS_ECC_CURVE_INVALID;
+
+  if (j_scheme_data != NULL) {
+    j_error = json_array();
+    if (j_error != NULL) {
+      do {
+        if (json_string_null_or_empty(json_object_get(json_object_get(j_scheme_data, "credential"), "rawI
+    ...[cut, 26,690 characters in total]
+
+========================================================================
+#16   label: 1  (BEFORE the fix)
+project: esp   commit: e310c4f91d229a072507f80c73811489b4cdff27
+CVE: CVE-2021-41130   CWE: CWE-290   function: google::api_manager::context::RequestContext::StartBackendSpanAndSetTraceContext   file: request_context.cc
+label-1 functions changed in this commit: 10
+------------------------------------------------------------------------
+void RequestContext::StartBackendSpanAndSetTraceContext() {
+  backend_span_.reset(CreateSpan(cloud_trace_.get(), "Backend"));
+
+  // TODO: A better logic would be to send for GRPC backends the grpc-trace-bin
+  // header, and for http/https backends the X-Cloud-Trace-Context header.
+
+  std::string trace_context_header = cloud_trace()->ToTraceContextHeader(
+      backend_span_->trace_span()->span_id());
+
+  // Set trace context header to backend.
+  Status status = request()->AddHeaderToBackend(
+      cloud_trace()->header_type() == HeaderType::CLOUD_TRACE_CONTEXT
+          ? kCloudTraceContextHeader
+          : kGRpcTraceContextHeader,
+      trace_context_header);
+  if (!status.ok()) {
+    service_context()->env()->LogError(
+        "Failed to set trace context header to backend.");
+  }
+}
+
+========================================================================
+#17   label: 0  (AFTER the fix)
+project: tensorflow   commit: 448a16182065bd08a202d9057dd8ca541e67996c
+CVE: CVE-2022-23591   CWE: CWE-674   function: tensorflow::ValidateFunctionNotRecursive   file: loader.cc
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+static Status ValidateFunctionNotRecursive(const FunctionDef& function) {
+  const auto& function_name = function.signature().name();
+  for (const auto& node : function.node_def()) {
+    if (node.op() == function_name) {
+      return errors::FailedPrecondition(
+          "Function ", function_name,
+          " is self recursive and TensorFlow does not support this scenario.");
+    }
+  }
+
+  return Status::OK();
+}
+
+========================================================================
+#18   label: 0  (AFTER the fix)
+project: libvncserver   commit: aac95a9dcf4bbba87b76c72706c3221a842ca433
+CVE: CVE-2017-18922   CWE: CWE-787   function: hybiReturnData   file: websockets.c
+label-1 functions changed in this commit: 2
+------------------------------------------------------------------------
+hybiReturnData(char *dst, int len, ws_ctx_t *wsctx, int *nWritten)
+{
+  int nextState = WS_HYBI_STATE_ERR;
+
+  /* if we have something already decoded copy and return */
+  if (wsctx->readlen > 0) {
+    /* simply return what we have */
+    if (wsctx->readlen > len) {
+      rfbLog("copy to %d bytes to dst buffer; readPos=%p, readLen=%d\n", len, wsctx->readPos, wsctx->readlen);
+      memcpy(dst, wsctx->readPos, len);
+      *nWritten = len;
+      wsctx->readlen -= len;
+      wsctx->readPos += len;
+      nextState = WS_HYBI_STATE_DATA_AVAILABLE;
+    } else {
+      rfbLog("copy to %d bytes to dst buffer; readPos=%p, readLen=%d\n", wsctx->readlen, wsctx->readPos, wsctx->readlen);
+      memcpy(dst, wsctx->readPos, wsctx->readlen);
+      *nWritten = wsctx->readlen;
+      wsctx->readlen = 0;
+      wsctx->readPos = NULL;
+      if (hybiRemaining(wsctx) == 0) {
+        nextState = WS_HYBI_STATE_FRAME_COMPLETE;
+      } else {
+        nextState = WS_HYBI_STATE_DATA_NEEDED;
+      }
+    }
+    rfbLog("after copy: readPos=%p, readLen=%d\n", wsctx->readPos, wsctx->readlen);
+  } else if (wsctx->hybiDecodeState == WS_HYBI_STATE_CLOSE_REASON_PENDING) {
+    nextState = WS_HYBI_STATE_CLOSE_REASON_PENDING;
+  }
+  return nextState;
+}
+
+========================================================================
+#19   label: 0  (AFTER the fix)
+project: linux   commit: 6f3ef5c25cc762687a7341c18cbea5af54461407
+CVE: CVE-2019-19051   CWE: CWE-401   function: i2400m_op_rfkill_sw_toggle   file: op-rfkill.c
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+int i2400m_op_rfkill_sw_toggle(struct wimax_dev *wimax_dev,
+			       enum wimax_rf_state state)
+{
+	int result;
+	struct i2400m *i2400m = wimax_dev_to_i2400m(wimax_dev);
+	struct device *dev = i2400m_dev(i2400m);
+	struct sk_buff *ack_skb;
+	struct {
+		struct i2400m_l3l4_hdr hdr;
+		struct i2400m_tlv_rf_operation sw_rf;
+	} __packed *cmd;
+	char strerr[32];
+
+	d_fnstart(4, dev, "(wimax_dev %p state %d)\n", wimax_dev, state);
+
+	result = -ENOMEM;
+	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+	if (cmd == NULL)
+		goto error_alloc;
+	cmd->hdr.type = cpu_to_le16(I2400M_MT_CMD_RF_CONTROL);
+	cmd->hdr.length = sizeof(cmd->sw_rf);
+	cmd->hdr.version = cpu_to_le16(I2400M_L3L4_VERSION);
+	cmd->sw_rf.hdr.type = cpu_to_le16(I2400M_TLV_RF_OPERATION);
+	cmd->sw_rf.hdr.length = cpu_to_le16(sizeof(cmd->sw_rf.status));
+	switch (state) {
+	case WIMAX_RF_OFF:	/* RFKILL ON, radio OFF */
+		cmd->sw_rf.status = cpu_to_le32(2);
+		break;
+	case WIMAX_RF_ON:	/* RFKILL OFF, radio ON */
+		cmd->sw_rf.status = cpu_to_le32(1);
+		break;
+	default:
+		BUG();
+	}
+
+	ack_skb = i2400m_msg_to_dev(i2400m, cmd, sizeof(*cmd));
+	result = PTR_ERR(ack_skb);
+	if (IS_ERR(ack_skb)) {
+		dev_err(dev, "Failed to issue 'RF Control' command: %d\n",
+			result);
+		goto error_msg_to_dev;
+	}
+	result = i2400m_msg_check_status(wimax_msg_data(ack_skb),
+					 strerr, sizeof(strerr));
+	if (result < 0) {
+		dev_err(dev, "'RF Control' (0x%04x) command failed: %d - %s\n",
+			I2400M_MT_CMD_RF_CONTROL, result, strerr);
+		goto error_cmd;
+	}
+
+	/* Now we wait for the
+    ...[cut, 1,965 characters in total]
+
+========================================================================
+#20   label: 1  (BEFORE the fix)
+project: tensorflow   commit: 15691e456c7dc9bd6be203b09765b063bf4a380c
+CVE: CVE-2021-37688   CWE: CWE-476   function: tflite::optimized_ops::BinaryBroadcastFiveFold   file: optimized_ops.h
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+inline void BinaryBroadcastFiveFold(const ArithmeticParams& unswitched_params,
+                                    const RuntimeShape& unswitched_input1_shape,
+                                    const T* unswitched_input1_data,
+                                    const RuntimeShape& unswitched_input2_shape,
+                                    const T* unswitched_input2_data,
+                                    const RuntimeShape& output_shape,
+                                    T* output_data, ElementwiseF elementwise_f,
+                                    ScalarBroadcastF scalar_broadcast_f) {
+  ArithmeticParams switched_params = unswitched_params;
+  switched_params.input1_offset = unswitched_params.input2_offset;
+  switched_params.input1_multiplier = unswitched_params.input2_multiplier;
+  switched_params.input1_shift = unswitched_params.input2_shift;
+  switched_params.input2_offset = unswitched_params.input1_offset;
+  switched_params.input2_multiplier = unswitched_params.input1_multiplier;
+  switched_params.input2_shift = unswitched_params.input1_shift;
+
+  const bool use_unswitched =
+      unswitched_params.broadcast_category ==
+      tflite::BroadcastableOpCategory::kFirstInputBroadcastsFast;
+
+  const ArithmeticParams& params =
+      use_unswitched ? unswitched_params : switched_params;
+  const T* input1_data =
+      use_unswitched ? unswitched_input1_data : unswitched_input2_data;
+  const T* input2_data =
+      use_unswitched ? unswitched_input2_data : unswitched_input1
+    ...[cut, 4,283 characters in total]
+
+========================================================================
+#21   label: 1  (BEFORE the fix)
+project: messagelib   commit: 3b5b171e91ce78b966c98b1292a1bcbc8d984799
+CVE: CVE-2021-31855   CWE: CWE-312   function: ViewerPrivate::deleteAttachment   file: viewer_p.cpp
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+bool ViewerPrivate::deleteAttachment(KMime::Content *node, bool showWarning)
+{
+    if (!node) {
+        return true;
+    }
+    KMime::Content *parent = node->parent();
+    if (!parent) {
+        return true;
+    }
+
+    const QVector<KMime::Content *> extraNodes = mNodeHelper->extraContents(mMessage.data());
+    if (extraNodes.contains(node->topLevel())) {
+        KMessageBox::error(mMainWindow,
+                           i18n("Deleting an attachment from an encrypted or old-style mailman message is not supported."),
+                           i18n("Delete Attachment"));
+        return true; // cancelled
+    }
+
+    if (showWarning
+        && KMessageBox::warningContinueCancel(mMainWindow,
+                                              i18n("Deleting an attachment might invalidate any digital signature on this message."),
+                                              i18n("Delete Attachment"),
+                                              KStandardGuiItem::del(),
+                                              KStandardGuiItem::cancel(),
+                                              QStringLiteral("DeleteAttachmentSignatureWarning"))
+            != KMessageBox::Continue) {
+        return false; // cancelled
+    }
+    // don't confuse the model
+    mMimePartTree->clearModel();
+    QString filename;
+    QString name;
+    QByteArray mimetype;
+    if (auto cd = node->contentDisposition(false)) {
+        filename = cd->filename();
+    }
+
+    if (auto ct = node->contentType(false)) {
+  
+    ...[cut, 2,967 characters in total]
+
+========================================================================
+#22   label: 1  (BEFORE the fix)
+project: libjpeg-turbo   commit: 9120a247436e84c0b4eea828cb11e8f665fcde30
+CVE: CVE-2020-35538   CWE: CWE-476   function: build_ycc_rgb_table   file: jdmerge.c
+label-1 functions changed in this commit: 12
+------------------------------------------------------------------------
+build_ycc_rgb_table(j_decompress_ptr cinfo)
+{
+  my_upsample_ptr upsample = (my_upsample_ptr)cinfo->upsample;
+  int i;
+  JLONG x;
+  SHIFT_TEMPS
+
+  upsample->Cr_r_tab = (int *)
+    (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                (MAXJSAMPLE + 1) * sizeof(int));
+  upsample->Cb_b_tab = (int *)
+    (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                (MAXJSAMPLE + 1) * sizeof(int));
+  upsample->Cr_g_tab = (JLONG *)
+    (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                (MAXJSAMPLE + 1) * sizeof(JLONG));
+  upsample->Cb_g_tab = (JLONG *)
+    (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
+                                (MAXJSAMPLE + 1) * sizeof(JLONG));
+
+  for (i = 0, x = -CENTERJSAMPLE; i <= MAXJSAMPLE; i++, x++) {
+    /* i is the actual input pixel value, in the range 0..MAXJSAMPLE */
+    /* The Cb or Cr value we are thinking of is x = i - CENTERJSAMPLE */
+    /* Cr=>R value is nearest int to 1.40200 * x */
+    upsample->Cr_r_tab[i] = (int)
+                    RIGHT_SHIFT(FIX(1.40200) * x + ONE_HALF, SCALEBITS);
+    /* Cb=>B value is nearest int to 1.77200 * x */
+    upsample->Cb_b_tab[i] = (int)
+                    RIGHT_SHIFT(FIX(1.77200) * x + ONE_HALF, SCALEBITS);
+    /* Cr=>G value is scaled-up -0.71414 * x */
+    upsample->Cr_g_tab[i] = (-FIX(0.71414)) * x;
+    /* Cb=>G value is scaled-up -0.34414 * x */
+    /* We also add in ONE_HA
+    ...[cut, 1,608 characters in total]
+
+========================================================================
+#23   label: 1  (BEFORE the fix)
+project: libgd   commit: 4dc1a2d7931017d3625f2d7cff70a17ce58b53b4
+CVE: CVE-2016-5116   CWE: CWE-119   function: gdImageXbmCtx   file: gd_xbm.c
+label-1 functions changed in this commit: 2
+------------------------------------------------------------------------
+BGD_DECLARE(void) gdImageXbmCtx(gdImagePtr image, char* file_name, int fg, gdIOCtx * out)
+{
+	int x, y, c, b, sx, sy, p;
+	char *name, *f;
+	size_t i, l;
+
+	name = file_name;
+	if ((f = strrchr(name, '/')) != NULL) name = f+1;
+	if ((f = strrchr(name, '\\')) != NULL) name = f+1;
+	name = strdup(name);
+	if ((f = strrchr(name, '.')) != NULL && !strcasecmp(f, ".XBM")) *f = '\0';
+	if ((l = strlen(name)) == 0) {
+		free(name);
+		name = strdup("image");
+	} else {
+		for (i=0; i<l; i++) {
+			/* only in C-locale isalnum() would work */
+			if (!isupper(name[i]) && !islower(name[i]) && !isdigit(name[i])) {
+				name[i] = '_';
+			}
+		}
+	}
+
+	gdCtxPrintf(out, "#define %s_width %d\n", name, gdImageSX(image));
+	gdCtxPrintf(out, "#define %s_height %d\n", name, gdImageSY(image));
+	gdCtxPrintf(out, "static unsigned char %s_bits[] = {\n  ", name);
+
+	free(name);
+
+	b = 1;
+	p = 0;
+	c = 0;
+	sx = gdImageSX(image);
+	sy = gdImageSY(image);
+	for (y = 0; y < sy; y++) {
+		for (x = 0; x < sx; x++) {
+			if (gdImageGetPixel(image, x, y) == fg) {
+				c |= b;
+			}
+			if ((b == 128) || (x == sx && y == sy)) {
+				b = 1;
+				if (p) {
+					gdCtxPrintf(out, ", ");
+					if (!(p%12)) {
+						gdCtxPrintf(out, "\n  ");
+						p = 12;
+					}
+				}
+				p++;
+				gdCtxPrintf(out, "0x%02X", c);
+				c = 0;
+			} else {
+				b <<= 1;
+			}
+		}
+	}
+	gdCtxPrintf(out, "};\n");
+}
+
+========================================================================
+#24   label: 0  (AFTER the fix)
+project: libraw   commit: 5ab45b085898e379fedc6b113e2e82a890602b1e
+CVE: CVE-2020-35532   CWE: CWE-125   function: simple_decode_row   file: x3f_utils_patched.cpp
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+static void simple_decode_row(x3f_info_t *I, x3f_directory_entry_t *DE,
+                              int bits, int row, int row_stride)
+{
+  x3f_directory_entry_header_t *DEH = &DE->header;
+  x3f_image_data_t *ID = &DEH->data_subsection.image_data;
+  x3f_huffman_t *HUF = ID->huffman;
+
+  if (row*row_stride > ID->data_size - (ID->columns*sizeof(uint32_t)))
+	  throw LIBRAW_EXCEPTION_IO_CORRUPT;
+  uint32_t *data = (uint32_t *)((unsigned char *)ID->data + row * row_stride);
+
+  uint16_t c[3] = {0, 0, 0};
+  int col;
+
+  uint32_t mask = 0;
+
+  switch (bits)
+  {
+  case 8:
+    mask = 0x0ff;
+    break;
+  case 9:
+    mask = 0x1ff;
+    break;
+  case 10:
+    mask = 0x3ff;
+    break;
+  case 11:
+    mask = 0x7ff;
+    break;
+  case 12:
+    mask = 0xfff;
+    break;
+  default:
+    mask = 0;
+    /* TODO: Shouldn't this be treated as a fatal error? */
+    throw LIBRAW_EXCEPTION_IO_CORRUPT;
+    break;
+  }
+
+  for (col = 0; col < ID->columns; col++)
+  {
+    int color;
+    uint32_t val = data[col];
+
+    for (color = 0; color < 3; color++)
+    {
+      uint16_t c_fix;
+      c[color] += get_simple_diff(HUF, (val >> (color * bits)) & mask);
+
+      switch (ID->type_format)
+      {
+      case X3F_IMAGE_RAW_HUFFMAN_X530:
+      case X3F_IMAGE_RAW_HUFFMAN_10BIT:
+        c_fix = (int16_t)c[color] > 0 ? c[color] : 0;
+
+        HUF->x3rgb16.data[3 * (row * ID->columns + col) + color] = c_fix;
+        break;
+      case X3F_IMAGE_THUMB_HUFFMAN:
+        c_fix = (int8_t)c[color] > 0 ? c[color] : 0;
+
+        HUF->rgb8.d
+    ...[cut, 1,708 characters in total]
+
+========================================================================
+#25   label: 0  (AFTER the fix)
+project: tensorflow   commit: 480641e3599775a8895254ffbc0fc45621334f68
+CVE: CVE-2021-29551   CWE: CWE-125   function: tensorflow::BaseMatrixTriangularSolveOp::Compute   file: matrix_triangular_solve_op_impl.h
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+  void Compute(OpKernelContext* ctx) override {
+    const Tensor& in0 = ctx->input(0);
+    const Tensor& in1 = ctx->input(1);
+
+    ValidateInputTensors(ctx, in0, in1);
+    if (!ctx->status().ok()) {
+      return;
+    }
+
+    MatMulBCast bcast(in0.shape().dim_sizes(), in1.shape().dim_sizes());
+    OP_REQUIRES(
+        ctx, bcast.IsValid(),
+        errors::InvalidArgument(
+            "In[0] and In[1] must have compatible batch dimensions: ",
+            in0.shape().DebugString(), " vs. ", in1.shape().DebugString()));
+
+    TensorShape out_shape = bcast.output_batch_shape();
+    auto batch_size = bcast.output_batch_size();
+    auto d0 = in0.dim_size(in0.dims() - 2);
+    auto d1 = in0.dim_size(in0.dims() - 1);
+    Tensor in0_reshaped;
+    OP_REQUIRES(
+        ctx,
+        in0_reshaped.CopyFrom(in0, TensorShape({bcast.x_batch_size(), d0, d1})),
+        errors::Internal("Failed to reshape In[0] from ",
+                         in0.shape().DebugString()));
+    auto d2 = in1.dim_size(in1.dims() - 2);
+    auto d3 = in1.dim_size(in1.dims() - 1);
+    Tensor in1_reshaped;
+    OP_REQUIRES(
+        ctx,
+        in1_reshaped.CopyFrom(in1, TensorShape({bcast.y_batch_size(), d2, d3})),
+        errors::Internal("Failed to reshape In[1] from ",
+                         in1.shape().DebugString()));
+    if (adjoint_) std::swap(d0, d1);
+    OP_REQUIRES(ctx, d1 == d2,
+                errors::InvalidArgument(
+                    "In[0] mismatch In[1] shape: ", d1, " vs. ", d2, ": ",
+                 
+    ...[cut, 2,224 characters in total]
+
+========================================================================
+#26   label: 1  (BEFORE the fix)
+project: gnutls   commit: 49be4f7b82eba2363bb8d4090950dad976a77a3a
+CVE: CVE-2017-5335   CWE: CWE-125   function: read_subpkt   file: read-packet.c
+label-1 functions changed in this commit: 4
+------------------------------------------------------------------------
+read_subpkt(cdk_stream_t inp, cdk_subpkt_t * r_ctx, size_t * r_nbytes)
+{
+	byte c, c1;
+	size_t size, nread, n;
+	cdk_subpkt_t node;
+	cdk_error_t rc;
+
+	if (!inp || !r_nbytes)
+		return CDK_Inv_Value;
+
+	if (DEBUG_PKT)
+		_gnutls_write_log("read_subpkt:\n");
+
+	n = 0;
+	*r_nbytes = 0;
+	c = cdk_stream_getc(inp);
+	n++;
+	if (c == 255) {
+		size = read_32(inp);
+		n += 4;
+	} else if (c >= 192 && c < 255) {
+		c1 = cdk_stream_getc(inp);
+		n++;
+		if (c1 == 0)
+			return 0;
+		size = ((c - 192) << 8) + c1 + 192;
+	} else if (c < 192)
+		size = c;
+	else
+		return CDK_Inv_Packet;
+
+	node = cdk_subpkt_new(size);
+	if (!node)
+		return CDK_Out_Of_Core;
+	node->size = size;
+	node->type = cdk_stream_getc(inp);
+	if (DEBUG_PKT)
+		_gnutls_write_log(" %d octets %d type\n", node->size,
+				  node->type);
+	n++;
+	node->size--;
+	rc = stream_read(inp, node->d, node->size, &nread);
+	n += nread;
+	if (rc) {
+		cdk_subpkt_free(node);
+		return rc;
+	}
+	*r_nbytes = n;
+	if (!*r_ctx)
+		*r_ctx = node;
+	else
+		cdk_subpkt_add(*r_ctx, node);
+	return rc;
+}
+
+========================================================================
+#27   label: 0  (AFTER the fix)
+project: tensorflow   commit: 1970c2158b1ffa416d159d03c3370b9a462aee35
+CVE: CVE-2020-15211   CWE: CWE-125;CWE-787   function: tflite::ops::builtin::reduce::EvalLogic   file: reduce.cc
+label-1 functions changed in this commit: 206
+------------------------------------------------------------------------
+TfLiteStatus EvalLogic(TfLiteContext* context, TfLiteNode* node,
+                       OpContext* op_context, T init_value,
+                       T reducer(const T current, const T in)) {
+  int64_t num_axis = NumElements(op_context->axis);
+  TfLiteTensor* temp_index;
+  TF_LITE_ENSURE_OK(context,
+                    GetTemporarySafe(context, node, /*index=*/0, &temp_index));
+  TfLiteTensor* resolved_axis;
+  TF_LITE_ENSURE_OK(
+      context, GetTemporarySafe(context, node, /*index=*/1, &resolved_axis));
+  // Resize the output tensor if the output tensor is dynamic.
+  if (IsDynamicTensor(op_context->output)) {
+    TF_LITE_ENSURE_OK(context,
+                      ResizeTempAxis(context, op_context, resolved_axis));
+    TF_LITE_ENSURE_OK(context, ResizeOutputTensor(context, op_context));
+  }
+  if (op_context->input->type == kTfLiteUInt8 ||
+      op_context->input->type == kTfLiteInt8) {
+    TF_LITE_ENSURE_EQ(context, op_context->input->params.scale,
+                      op_context->output->params.scale);
+    TF_LITE_ENSURE_EQ(context, op_context->input->params.zero_point,
+                      op_context->output->params.zero_point);
+  }
+  TF_LITE_ENSURE(
+      context,
+      reference_ops::ReduceGeneric<T>(
+          GetTensorData<T>(op_context->input), op_context->input->dims->data,
+          op_context->input->dims->size, GetTensorData<T>(op_context->output),
+          op_context->output->dims->data, op_context->output->dims->size,
+          GetTensorData<int>(op_context->axi
+    ...[cut, 1,676 characters in total]
+
+========================================================================
+#28   label: 0  (AFTER the fix)
+project: u-boot   commit: 8a7d4cf9820ea16fabd25a6379351b4dc291204b
+CVE: CVE-2021-27097   CWE: NVD-CWE-noinfo   function: fdt_find_regions   file: fdt_region.c
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
+		     char * const exc_prop[], int exc_prop_count,
+		     struct fdt_region region[], int max_regions,
+		     char *path, int path_len, int add_string_tab)
+{
+	int stack[FDT_MAX_DEPTH] = { 0 };
+	char *end;
+	int nextoffset = 0;
+	uint32_t tag;
+	int count = 0;
+	int start = -1;
+	int depth = -1;
+	int want = 0;
+	int base = fdt_off_dt_struct(fdt);
+	bool expect_end = false;
+
+	end = path;
+	*end = '\0';
+	do {
+		const struct fdt_property *prop;
+		const char *name;
+		const char *str;
+		int include = 0;
+		int stop_at = 0;
+		int offset;
+		int len;
+
+		offset = nextoffset;
+		tag = fdt_next_tag(fdt, offset, &nextoffset);
+		stop_at = nextoffset;
+
+		/* If we see two root nodes, something is wrong */
+		if (expect_end && tag != FDT_END)
+			return -FDT_ERR_BADLAYOUT;
+
+		switch (tag) {
+		case FDT_PROP:
+			include = want >= 2;
+			stop_at = offset;
+			prop = fdt_get_property_by_offset(fdt, offset, NULL);
+			str = fdt_string(fdt, fdt32_to_cpu(prop->nameoff));
+			if (!str)
+				return -FDT_ERR_BADSTRUCTURE;
+			if (str_in_list(str, exc_prop, exc_prop_count))
+				include = 0;
+			break;
+
+		case FDT_NOP:
+			include = want >= 2;
+			stop_at = offset;
+			break;
+
+		case FDT_BEGIN_NODE:
+			depth++;
+			if (depth == FDT_MAX_DEPTH)
+				return -FDT_ERR_BADSTRUCTURE;
+			name = fdt_get_name(fdt, offset, &len);
+
+			/* The root node must have an empty name */
+			if (!depth && *name)
+				return -FDT_ERR_BADLAYOUT;
+			if (end - path + 2 + len >= path
+    ...[cut, 2,964 characters in total]
+
+========================================================================
+#29   label: 0  (AFTER the fix)
+project: accel-ppp   commit: 2324bcd5ba12cf28f47357a8f03cd41b7c04c52b
+CVE: CVE-2020-15173   CWE: CWE-120   function: l2tp_packet_alloc   file: packet.c
+label-1 functions changed in this commit: 5
+------------------------------------------------------------------------
+struct l2tp_packet_t *l2tp_packet_alloc(int ver, int msg_type,
+					const struct sockaddr_in *addr, int H,
+					const char *secret, size_t secret_len)
+{
+	struct l2tp_packet_t *pack = mempool_alloc(pack_pool);
+	if (!pack)
+		return NULL;
+
+	memset(pack, 0, sizeof(*pack));
+	INIT_LIST_HEAD(&pack->attrs);
+	pack->hdr.flags = L2TP_FLAG_T | L2TP_FLAG_L | L2TP_FLAG_S | (ver & L2TP_VER_MASK);
+	memcpy(&pack->addr, addr, sizeof(*addr));
+	pack->hide_avps = H;
+	pack->secret = secret;
+	pack->secret_len = secret_len;
+
+	if (msg_type) {
+		if (l2tp_packet_add_int16(pack, Message_Type, msg_type, 1)) {
+			mempool_free(pack);
+			return NULL;
+		}
+	}
+
+	return pack;
+}
+
+========================================================================
+#30   label: 1  (BEFORE the fix)
+project: drogon   commit: c0d48da99f66aaada17bcd28b07741cac8697647
+CVE: CVE-2022-3959   CWE: CWE-330   function: drogon::HttpRequestImpl::headers   file: HttpRequestImpl.h
+label-1 functions changed in this commit: 8
+------------------------------------------------------------------------
+    const std::unordered_map<std::string, std::string> &headers() const override
+    {
+        return headers_;
+    }
+
+========================================================================
+#31   label: 0  (AFTER the fix)
+project: njs   commit: 2ad0ea24a58d570634e09c2e58c3b314505eaa6a
+CVE: CVE-2022-43286   CWE: CWE-416   function: njs_json_parse   file: njs_json.c
+label-1 functions changed in this commit: 5
+------------------------------------------------------------------------
+njs_json_parse(njs_vm_t *vm, njs_value_t *args, njs_uint_t nargs,
+    njs_index_t unused)
+{
+    njs_int_t             ret;
+    njs_value_t           *text, value, lvalue, wrapper;
+    njs_object_t          *obj;
+    const u_char          *p, *end;
+    const njs_value_t     *reviver;
+    njs_string_prop_t     string;
+    njs_json_parse_ctx_t  ctx;
+
+    text = njs_lvalue_arg(&lvalue, args, nargs, 1);
+
+    if (njs_slow_path(!njs_is_string(text))) {
+        ret = njs_value_to_string(vm, text, text);
+        if (njs_slow_path(ret != NJS_OK)) {
+            return ret;
+        }
+    }
+
+    (void) njs_string_prop(&string, text);
+
+    p = string.start;
+    end = p + string.size;
+
+    ctx.vm = vm;
+    ctx.pool = vm->mem_pool;
+    ctx.depth = NJS_JSON_MAX_DEPTH;
+    ctx.start = string.start;
+    ctx.end = end;
+
+    p = njs_json_skip_space(p, end);
+    if (njs_slow_path(p == end)) {
+        njs_json_parse_exception(&ctx, "Unexpected end of input", p);
+        return NJS_ERROR;
+    }
+
+    p = njs_json_parse_value(&ctx, &value, p);
+    if (njs_slow_path(p == NULL)) {
+        return NJS_ERROR;
+    }
+
+    p = njs_json_skip_space(p, end);
+    if (njs_slow_path(p != end)) {
+        njs_json_parse_exception(&ctx, "Unexpected token", p);
+        return NJS_ERROR;
+    }
+
+    reviver = njs_arg(args, nargs, 2);
+
+    if (njs_slow_path(njs_is_function(reviver))) {
+        obj = njs_json_wrap_value(vm, &wrapper, &value);
+        if (njs_slow_path(obj == NULL)) {
+            return NJS_ERROR;
+        }
+    ...[cut, 1,822 characters in total]
+
+========================================================================
+#32   label: 1  (BEFORE the fix)
+project: tensorflow   commit: c5b30379ba87cbe774b08ac50c1f6d36df4ebb7c
+CVE: CVE-2022-41887   CWE: CWE-131   function: tensorflow::functor::BinaryFunctor::NByOne   file: cwise_ops_common.h
+label-1 functions changed in this commit: 3
+------------------------------------------------------------------------
+  inline Eigen::IndexList<int, Eigen::type2index<1>> NByOne(int n) {
+    Eigen::IndexList<int, Eigen::type2index<1>> ret;
+    ret.set(0, n);
+    return ret;
+  }
+
+========================================================================
+#33   label: 0  (AFTER the fix)
+project: libraw   commit: 11c4db253ef2c9bb44247b578f5caa57c66a1eeb
+CVE: CVE-2020-35530   CWE: CWE-787   function: new_huffman_tree   file: x3f_utils_patched.cpp
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+static void new_huffman_tree(x3f_hufftree_t *HTP, int bits)
+{
+  int leaves = 1 << bits;
+
+  HTP->free_node_index = 0;
+  HTP->total_node_index = HUF_TREE_MAX_NODES(leaves);
+  HTP->nodes = (x3f_huffnode_t *)calloc(1, HUF_TREE_MAX_NODES(leaves) *
+                                               sizeof(x3f_huffnode_t));
+}
+
+========================================================================
+#34   label: 1  (BEFORE the fix)
+project: envoy   commit: afc39bea36fd436e54262f150c009e8d72db5014
+CVE: CVE-2019-15226   CWE: CWE-400   function: Envoy::Http::Http1::ConnectionImpl::onHeaderValue   file: codec_impl.cc
+label-1 functions changed in this commit: 19
+------------------------------------------------------------------------
+void ConnectionImpl::onHeaderValue(const char* data, size_t length) {
+  if (header_parsing_state_ == HeaderParsingState::Done) {
+    // Ignore trailers.
+    return;
+  }
+
+  const absl::string_view header_value = absl::string_view(data, length);
+
+  if (strict_header_validation_) {
+    if (!Http::HeaderUtility::headerIsValid(header_value)) {
+      ENVOY_CONN_LOG(debug, "invalid header value: {}", connection_, header_value);
+      error_code_ = Http::Code::BadRequest;
+      sendProtocolError();
+      throw CodecProtocolException("http/1.1 protocol error: header value contains invalid chars");
+    }
+  } else if (header_value.find('\0') != absl::string_view::npos) {
+    // http-parser should filter for this
+    // (https://tools.ietf.org/html/rfc7230#section-3.2.6), but it doesn't today. HeaderStrings
+    // have an invariant that they must not contain embedded zero characters
+    // (NUL, ASCII 0x0).
+    throw CodecProtocolException("http/1.1 protocol error: header value contains NUL");
+  }
+
+  header_parsing_state_ = HeaderParsingState::Value;
+  current_header_value_.append(data, length);
+
+  const uint32_t total =
+      current_header_field_.size() + current_header_value_.size() + current_header_map_->byteSize();
+  if (total > (max_request_headers_kb_ * 1024)) {
+    error_code_ = Http::Code::RequestHeaderFieldsTooLarge;
+    sendProtocolError();
+    throw CodecProtocolException("headers size exceeds limit");
+  }
+}
+
+========================================================================
+#35   label: 1  (BEFORE the fix)
+project: orjson   commit: b0e4d2c06ce06c6e63981bf0276e4b7c74e5845e
+CVE: CVE-2024-27454   CWE: NVD-CWE-noinfo   function: yyjson_ptr_get_uint   file: yyjson.h
+label-1 functions changed in this commit: 12
+------------------------------------------------------------------------
+yyjson_api_inline bool yyjson_ptr_get_uint(
+    yyjson_val *root, const char *ptr, uint64_t *value) {
+    yyjson_val *val = yyjson_ptr_get(root, ptr);
+    if (value && yyjson_is_uint(val)) {
+        *value = unsafe_yyjson_get_uint(val);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+========================================================================
+#36   label: 1  (BEFORE the fix)
+project: tensorflow   commit: 1970c2158b1ffa416d159d03c3370b9a462aee35
+CVE: CVE-2020-15211   CWE: CWE-125;CWE-787   function: tflite::ops::builtin::Eval   file: embedding_lookup_sparse.cc
+label-1 functions changed in this commit: 206
+------------------------------------------------------------------------
+TfLiteStatus Eval(TfLiteContext* context, TfLiteNode* node) {
+  auto* params =
+      reinterpret_cast<TfLiteEmbeddingLookupSparseParams*>(node->builtin_data);
+  TfLiteTensor* output = GetOutput(context, node, 0);
+  const TfLiteTensor* ids = GetInput(context, node, 0);
+  const TfLiteTensor* indices = GetInput(context, node, 1);
+  const TfLiteTensor* dense_shape = GetInput(context, node, 2);
+  const TfLiteTensor* weights = GetInput(context, node, 3);
+  const TfLiteTensor* value = GetInput(context, node, 4);
+
+  const int lookup_rank = SizeOfDimension(indices, 1);
+  const int embedding_rank = NumDimensions(value);
+  const int num_lookups = SizeOfDimension(ids, 0);
+  const int num_rows = SizeOfDimension(value, 0);
+
+  // The last dimension gets replaced by the embedding.
+  const int output_rank = (lookup_rank - 1) + (embedding_rank - 1);
+
+  // Make sure that the actual dense shape of the sparse tensor represented by
+  // (loopkup, indices, dense_shape) is consistent.
+  TF_LITE_ENSURE_EQ(context, SizeOfDimension(dense_shape, 0), lookup_rank);
+
+  // Resize output tensor.
+  TfLiteIntArray* output_shape = TfLiteIntArrayCreate(output_rank);
+  int k = 0;
+  int embedding_size = 1;
+  int lookup_size = 1;
+  for (int i = 0; i < lookup_rank - 1; i++, k++) {
+    const int dim = dense_shape->data.i32[i];
+    lookup_size *= dim;
+    output_shape->data[k] = dim;
+  }
+  for (int i = 1; i < embedding_rank; i++, k++) {
+    const int dim = SizeOfDimension(value, i);
+    embedding_size *= dim;
+    outp
+    ...[cut, 4,116 characters in total]
+
+========================================================================
+#37   label: 0  (AFTER the fix)
+project: envoy   commit: bb95af848c939cfe5b5ee33c5b1770558077e64e
+CVE: CVE-2022-21656   CWE: CWE-843   function: Envoy::Extensions::TransportSockets::Tls::DefaultCertValidator::verifyCertificate   file: default_validator.cc
+label-1 functions changed in this commit: 40
+------------------------------------------------------------------------
+Envoy::Ssl::ClientValidationStatus DefaultCertValidator::verifyCertificate(
+    X509* cert, const std::vector<std::string>& verify_san_list,
+    const std::vector<SanMatcherPtr>& subject_alt_name_matchers) {
+  Envoy::Ssl::ClientValidationStatus validated = Envoy::Ssl::ClientValidationStatus::NotValidated;
+
+  if (!verify_san_list.empty()) {
+    if (!verifySubjectAltName(cert, verify_san_list)) {
+      stats_.fail_verify_san_.inc();
+      return Envoy::Ssl::ClientValidationStatus::Failed;
+    }
+    validated = Envoy::Ssl::ClientValidationStatus::Validated;
+  }
+
+  if (!subject_alt_name_matchers.empty()) {
+    if (!matchSubjectAltName(cert, subject_alt_name_matchers)) {
+      stats_.fail_verify_san_.inc();
+      return Envoy::Ssl::ClientValidationStatus::Failed;
+    }
+    validated = Envoy::Ssl::ClientValidationStatus::Validated;
+  }
+
+  if (!verify_certificate_hash_list_.empty() || !verify_certificate_spki_list_.empty()) {
+    const bool valid_certificate_hash =
+        !verify_certificate_hash_list_.empty() &&
+        verifyCertificateHashList(cert, verify_certificate_hash_list_);
+    const bool valid_certificate_spki =
+        !verify_certificate_spki_list_.empty() &&
+        verifyCertificateSpkiList(cert, verify_certificate_spki_list_);
+
+    if (!valid_certificate_hash && !valid_certificate_spki) {
+      stats_.fail_verify_cert_hash_.inc();
+      return Envoy::Ssl::ClientValidationStatus::Failed;
+    }
+
+    validated = Envoy::Ssl::ClientValidationStatus::Validated;
+  }
+
+  ret
+    ...[cut, 1,516 characters in total]
+
+========================================================================
+#38   label: 0  (AFTER the fix)
+project: libvncserver   commit: 57433015f856cc12753378254ce4f1c78f5d9c7b
+CVE: CVE-2020-14398   CWE: CWE-835   function: ReadFromRFBServer   file: sockets.c
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+ReadFromRFBServer(rfbClient* client, char *out, unsigned int n)
+{
+  const int USECS_WAIT_PER_RETRY = 100000;
+  int retries = 0;
+#undef DEBUG_READ_EXACT
+#ifdef DEBUG_READ_EXACT
+	char* oout=out;
+	unsigned int nn=n;
+	rfbClientLog("ReadFromRFBServer %d bytes\n",n);
+#endif
+
+  /* Handle attempts to write to NULL out buffer that might occur
+     when an outside malloc() fails. For instance, memcpy() to NULL
+     results in undefined behaviour and probably memory corruption.*/
+  if(!out)
+    return FALSE;
+
+  if (client->serverPort==-1) {
+    /* vncrec playing */
+    rfbVNCRec* rec = client->vncRec;
+    struct timeval tv;
+
+    if (rec->readTimestamp) {
+      rec->readTimestamp = FALSE;
+      if (!fread(&tv,sizeof(struct timeval),1,rec->file))
+        return FALSE;
+
+      tv.tv_sec = rfbClientSwap32IfLE (tv.tv_sec);
+      tv.tv_usec = rfbClientSwap32IfLE (tv.tv_usec);
+
+      if (rec->tv.tv_sec!=0 && !rec->doNotSleep) {
+        struct timeval diff;
+        diff.tv_sec = tv.tv_sec - rec->tv.tv_sec;
+        diff.tv_usec = tv.tv_usec - rec->tv.tv_usec;
+        if(diff.tv_usec<0) {
+	  diff.tv_sec--;
+	  diff.tv_usec+=1000000;
+        }
+#ifndef WIN32
+        sleep (diff.tv_sec);
+        usleep (diff.tv_usec);
+#else
+	Sleep (diff.tv_sec * 1000 + diff.tv_usec/1000);
+#endif
+      }
+
+      rec->tv=tv;
+    }
+    
+    return (fread(out,1,n,rec->file) != n ? FALSE : TRUE);
+  }
+  
+  if (n <= client->buffered) {
+    memcpy(out, client->bufoutptr, n);
+    client->bufoutptr += n;
+    client->buffered -= 
+    ...[cut, 4,269 characters in total]
+
+========================================================================
+#39   label: 1  (BEFORE the fix)
+project: tensorflow   commit: ff459137c2716a2a60f7d441b855fcb466d778cb
+CVE: CVE-2023-25658   CWE: CWE-125   function: stream_executor::gpu::CudnnSupport::DoRnnBackwardImpl   file: cuda_dnn.cc
+label-1 functions changed in this commit: 95
+------------------------------------------------------------------------
+tsl::Status CudnnSupport::DoRnnBackwardImpl(
+    Stream* stream, const CudnnRnnDescriptor& rnn_desc,
+    const CudnnRnnSequenceTensorDescriptor& input_desc,
+    const DeviceMemory<T>& input_data,
+    const DeviceMemory<int>& seq_lengths_data,
+    const CudnnRnnStateTensorDescriptor& input_h_desc,
+    const DeviceMemory<T>& input_h_data,
+    const CudnnRnnStateTensorDescriptor& input_c_desc,
+    const DeviceMemory<T>& input_c_data, const DeviceMemory<T>& params,
+    const CudnnRnnSequenceTensorDescriptor& output_desc,
+    const DeviceMemory<T>& output_data,
+    const CudnnRnnStateTensorDescriptor& output_h_desc,
+    const DeviceMemory<T>& output_h_data,
+    const CudnnRnnStateTensorDescriptor& output_c_desc,
+    const DeviceMemory<T>& output_c_data,
+    const DeviceMemory<T>& output_backprop_data,
+    const DeviceMemory<T>& output_h_backprop_data,
+    const DeviceMemory<T>& output_c_backprop_data,
+    DeviceMemory<T>* input_backprop_data,
+    DeviceMemory<T>* input_h_backprop_data,
+    DeviceMemory<T>* input_c_backprop_data,
+    DeviceMemory<T>* params_backprop_data,
+    DeviceMemory<uint8_t>* reserve_space_data,
+    ScratchAllocator* workspace_allocator,
+    dnn::ProfileResult* output_profile_result) {
+  TF_ASSIGN_OR_RETURN(
+      RnnModelDims model_dims,
+      ExtractAndCheckRnnForward(rnn_desc, input_desc, input_data, input_h_desc,
+                                input_h_data, input_c_desc, input_c_data,
+                                params, output_desc, output_data, outp
+    ...[cut, 10,919 characters in total]
+
+========================================================================
+#40   label: 0  (AFTER the fix)
+project: tensorflow   commit: ff459137c2716a2a60f7d441b855fcb466d778cb
+CVE: CVE-2023-25658   CWE: CWE-125   function: tsl::TEST   file: tsl_status_helper_test.cc
+label-1 functions changed in this commit: 95
+------------------------------------------------------------------------
+TEST(StatusHelper, TestStatusHelper) {
+  TSL_Status* s = TSL_NewStatus();
+  Status cc_status(errors::InvalidArgument("some error"));
+  cc_status.SetPayload("key1", absl::Cord("value1"));
+  cc_status.SetPayload("key2", absl::Cord("value2"));
+  Set_TSL_Status_from_Status(s, cc_status);
+  ASSERT_EQ(TSL_INVALID_ARGUMENT, TSL_GetCode(s));
+  ASSERT_EQ(std::string("some error"), TSL_Message(s));
+
+  Status another_cc_status(StatusFromTSL_Status(s));
+  ASSERT_FALSE(another_cc_status.ok());
+  ASSERT_EQ(std::string("some error"), another_cc_status.error_message());
+  ASSERT_EQ(error::INVALID_ARGUMENT, another_cc_status.code());
+  // Ensure the payloads are not lost during conversions
+  ASSERT_EQ(cc_status.GetPayload("key1"), another_cc_status.GetPayload("key1"));
+  ASSERT_EQ(cc_status.GetPayload("key2"), another_cc_status.GetPayload("key2"));
+  TSL_DeleteStatus(s);
+}
+
+========================================================================
+#41   label: 1  (BEFORE the fix)
+project: arangodb   commit: e9c6ee9dcca7b9b4fbcd02a0b323d205bee838d3
+CVE: CVE-2021-25940   CWE: CWE-613   function: RestAuthHandler::execute   file: RestAuthHandler.cpp
+label-1 functions changed in this commit: 7
+------------------------------------------------------------------------
+RestStatus RestAuthHandler::execute() {
+  auto const type = _request->requestType();
+  if (type != rest::RequestType::POST) {
+    generateError(rest::ResponseCode::METHOD_NOT_ALLOWED, TRI_ERROR_HTTP_METHOD_NOT_ALLOWED);
+    return RestStatus::DONE;
+  }
+
+  bool parseSuccess = false;
+  VPackSlice slice = this->parseVPackBody(parseSuccess);
+  if (!parseSuccess) { // error already set
+    return RestStatus::DONE;
+  }
+
+  if (!slice.isObject()) {
+    return badRequest();
+  }
+
+  VPackSlice usernameSlice = slice.get("username");
+  VPackSlice passwordSlice = slice.get("password");
+
+  if (!usernameSlice.isString() || !passwordSlice.isString()) {
+    return badRequest();
+  }
+
+  _username = usernameSlice.copyString();
+  std::string const password = passwordSlice.copyString();
+
+  auth::UserManager* um = AuthenticationFeature::instance()->userManager();
+  if (um == nullptr) {
+    std::string msg = "This server does not support users";
+    LOG_TOPIC("2e7d4", ERR, Logger::AUTHENTICATION) << msg;
+    generateError(rest::ResponseCode::UNAUTHORIZED, TRI_ERROR_HTTP_UNAUTHORIZED, msg);
+  } else if (um->checkPassword(_username, password)) {
+    VPackBuilder resultBuilder;
+    {
+      VPackObjectBuilder b(&resultBuilder);
+      std::string jwt = generateJwt(_username, password);
+      resultBuilder.add("jwt", VPackValue(jwt));
+    }
+
+    _isValid = true;
+    generateDocument(resultBuilder.slice(), true, &VPackOptions::Defaults);
+  } else {
+    // mop: rfc 2616 10.4.2 (if credentials wrong 401)
+    
+    ...[cut, 1,649 characters in total]
+
+========================================================================
+#42   label: 1  (BEFORE the fix)
+project: vim   commit: 3558afe9e9e904cabb8475392d859f2d2fc21041
+CVE: CVE-2022-3491   CWE: CWE-122   function: get_var_dest   file: vim9compile.c
+label-1 functions changed in this commit: 2
+------------------------------------------------------------------------
+get_var_dest(
+	char_u		*name,
+	assign_dest_T	*dest,
+	cmdidx_T	cmdidx,
+	int		*option_scope,
+	int		*vimvaridx,
+	type_T		**type,
+	cctx_T		*cctx)
+{
+    char_u *p;
+
+    if (*name == '&')
+    {
+	int		cc;
+	long		numval;
+	getoption_T	opt_type;
+	int		opt_p_flags;
+
+	*dest = dest_option;
+	if (cmdidx == CMD_final || cmdidx == CMD_const)
+	{
+	    emsg(_(e_cannot_lock_option));
+	    return FAIL;
+	}
+	p = name;
+	p = find_option_end(&p, option_scope);
+	if (p == NULL)
+	{
+	    // cannot happen?
+	    emsg(_(e_unexpected_characters_in_assignment));
+	    return FAIL;
+	}
+	cc = *p;
+	*p = NUL;
+	opt_type = get_option_value(skip_option_env_lead(name),
+				   &numval, NULL, &opt_p_flags, *option_scope);
+	*p = cc;
+	switch (opt_type)
+	{
+	    case gov_unknown:
+		    semsg(_(e_unknown_option_str), name);
+		    return FAIL;
+	    case gov_string:
+	    case gov_hidden_string:
+		    if (opt_p_flags & P_FUNC)
+		    {
+			// might be a Funcref, check the type later
+			*type = &t_any;
+			*dest = dest_func_option;
+		    }
+		    else
+		    {
+			*type = &t_string;
+		    }
+		    break;
+	    case gov_bool:
+	    case gov_hidden_bool:
+		    *type = &t_bool;
+		    break;
+	    case gov_number:
+	    case gov_hidden_number:
+		    *type = &t_number;
+		    break;
+	}
+    }
+    else if (*name == '$')
+    {
+	*dest = dest_env;
+	*type = &t_string;
+    }
+    else if (*name == '@')
+    {
+	if (name[1] != '@'
+			&& (!valid_yank_reg(name[1], FALSE) || name[1] == '.'))
+	{
+	    emsg_invreg(name[1]);
+	    return FAIL;
+	}
+	*dest = dest_reg;
+	
+    ...[cut, 2,341 characters in total]
+
+========================================================================
+#43   label: 1  (BEFORE the fix)
+project: hhvm   commit: 05e706d98f748f609b19d8697e490eaab5007d69
+CVE: CVE-2016-6874   CWE: NVD-CWE-Other   function: HPHP::php_array_merge_recursive   file: ext_array.cpp
+label-1 functions changed in this commit: 2
+------------------------------------------------------------------------
+static void php_array_merge_recursive(PointerSet &seen, bool check,
+                                      Array &arr1, const Array& arr2) {
+  if (check) {
+    if (seen.find((void*)arr1.get()) != seen.end()) {
+      raise_warning("array_merge_recursive(): recursion detected");
+      return;
+    }
+    seen.insert((void*)arr1.get());
+  }
+
+  for (ArrayIter iter(arr2); iter; ++iter) {
+    Variant key(iter.first());
+    const Variant& value(iter.secondRef());
+    if (key.isNumeric()) {
+      arr1.appendWithRef(value);
+    } else if (arr1.exists(key, true)) {
+      // There is no need to do toKey() conversion, for a key that is already
+      // in the array.
+      Variant &v = arr1.lvalAt(key, AccessFlags::Key);
+      auto subarr1 = v.toArray().copy();
+      php_array_merge_recursive(seen, v.isReferenced(), subarr1,
+                                value.toArray());
+      v.unset(); // avoid contamination of the value that was strongly bound
+      v = subarr1;
+    } else {
+      arr1.setWithRef(key, value, true);
+    }
+  }
+
+  if (check) {
+    seen.erase((void*)arr1.get());
+  }
+}
+
+========================================================================
+#44   label: 0  (AFTER the fix)
+project: contiki-ng   commit: 12c824386ab60de757de5001974d73b32e19ad71
+CVE: CVE-2020-12141   CWE: CWE-125   function: snmp_mib_find   file: snmp-mib.c
+label-1 functions changed in this commit: 34
+------------------------------------------------------------------------
+snmp_mib_find(snmp_oid_t *oid)
+{
+  snmp_mib_resource_t *resource;
+
+  resource = NULL;
+  for(resource = list_head(snmp_mib);
+      resource; resource = resource->next) {
+
+    if(!snmp_mib_cmp_oid(oid, &resource->oid)) {
+      return resource;
+    }
+  }
+
+  return NULL;
+}
+
+========================================================================
+#45   label: 1  (BEFORE the fix)
+project: cyclonetcp   commit: de5336016edbe1e90327d0ed1cba5c4e49114366
+CVE: CVE-2021-26788   CWE: CWE-20   function: ssiProcessExecCommand   file: ssi.c
+label-1 functions changed in this commit: 98
+------------------------------------------------------------------------
+error_t ssiProcessExecCommand(HttpConnection *connection, const char_t *tag, size_t length)
+{
+   char_t *separator;
+   char_t *attribute;
+   char_t *value;
+
+   //First, check whether CGI is supported by the server
+   if(connection->settings->cgiCallback == NULL)
+      return ERROR_INVALID_TAG;
+
+   //Discard invalid SSI directives
+   if(length < 4 || length >= HTTP_SERVER_BUFFER_SIZE)
+      return ERROR_INVALID_TAG;
+
+   //Skip the SSI exec command (4 bytes)
+   osMemcpy(connection->buffer, tag + 4, length - 4);
+   //Ensure the resulting string is NULL-terminated
+   connection->buffer[length - 4] = '\0';
+
+   //Check whether a separator is present
+   separator = strchr(connection->buffer, '=');
+   //Separator not found?
+   if(!separator)
+      return ERROR_INVALID_TAG;
+
+   //Split the tag
+   *separator = '\0';
+
+   //Get attribute name and value
+   attribute = strTrimWhitespace(connection->buffer);
+   value = strTrimWhitespace(separator + 1);
+
+   //Remove leading simple or double quote
+   if(value[0] == '\'' || value[0] == '\"')
+      value++;
+
+   //Get the length of the attribute value
+   length = osStrlen(value);
+
+   //Remove trailing simple or double quote
+   if(length > 0)
+   {
+      if(value[length - 1] == '\'' || value[length - 1] == '\"')
+         value[length - 1] = '\0';
+   }
+
+   //Enforce attribute name
+   if(osStrcasecmp(attribute, "cgi") && osStrcasecmp(attribute, "cmd") && osStrcasecmp(attribute, "cmd_argument"))
+      return ERROR_INVALID_TAG;
+   //Check the length o
+    ...[cut, 1,904 characters in total]
+
+========================================================================
+#46   label: 1  (BEFORE the fix)
+project: fluent-bit   commit: 9311b43a258352797af40749ab31a63c32acfd04
+CVE: CVE-2024-4323   CWE: NVD-CWE-noinfo   function: http_enable_trace   file: trace.c
+label-1 functions changed in this commit: 10
+------------------------------------------------------------------------
+static int http_enable_trace(mk_request_t *request, void *data, const char *input_name, msgpack_packer *mp_pck)
+{
+    char *buf = NULL;
+    size_t buf_size;
+    msgpack_unpacked result;
+    int ret = -1;
+    int rc = -1;
+    int i;
+    int x;
+    size_t off = 0;
+    int root_type = MSGPACK_OBJECT_ARRAY;
+    struct flb_hs *hs = data;
+    flb_sds_t prefix = NULL;
+    flb_sds_t output_name = NULL;
+    msgpack_object *key;
+    msgpack_object *val;
+    struct mk_list *props = NULL;
+    struct flb_chunk_trace_limit limit = { 0 };
+    struct flb_input_instance *input_instance;
+    
+
+    if (request->method == MK_METHOD_GET) {
+        ret = enable_trace_input(hs, input_name, "trace.", "stdout", NULL);
+        if (ret == 0) {
+                msgpack_pack_map(mp_pck, 1);
+                msgpack_pack_str_with_body(mp_pck, "status", strlen("status"));
+                msgpack_pack_str_with_body(mp_pck, "ok", strlen("ok"));
+                return 200;
+        }
+        else {
+            flb_error("unable to enable tracing for %s", input_name);
+            goto input_error;
+        }
+    }
+
+    msgpack_unpacked_init(&result);
+    rc = flb_pack_json(request->data.data, request->data.len, &buf, &buf_size,
+                       &root_type, NULL);
+    if (rc == -1) {
+        ret = 503;
+        flb_error("unable to parse json parameters");
+        goto unpack_error;
+    }
+
+    rc = msgpack_unpack_next(&result, buf, buf_size, &off);
+    if (rc != MSGPACK_UNPACK_SUCCESS) {
+        ret = 503;
+   
+    ...[cut, 7,248 characters in total]
+
+========================================================================
+#47   label: 0  (AFTER the fix)
+project: vnote   commit: 3477469b669708ff547037fda9fc2817870428aa
+CVE: CVE-2024-39904   CWE: NVD-CWE-noinfo   function: WidgetUtils::openUrlByDesktop   file: widgetutils.cpp
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+void WidgetUtils::openUrlByDesktop(const QUrl &p_url)
+{
+    const auto scheme = p_url.scheme();
+    if (scheme != "http" && scheme != "https") {
+        // Prompt for user.
+        int ret = MessageBoxHelper::questionYesNo(MessageBoxHelper::Warning,
+                                                  MainWindow::tr("Are you sure to open link (%1)?").arg(p_url.toString()),
+                                                  MainWindow::tr("Malicious link might do harm to your device."),
+                                                  QString(),
+                                                  nullptr);
+        if (ret == QMessageBox::No) {
+            return;
+        }
+    }
+
+    QDesktopServices::openUrl(p_url);
+}
+
+========================================================================
+#48   label: 1  (BEFORE the fix)
+project: libplist   commit: c086cb139af7c82845f6d565e636073ff4b37440
+CVE: CVE-2015-10082   CWE: CWE-611   function: plist_from_xml   file: xplist.c
+label-1 functions changed in this commit: 1
+------------------------------------------------------------------------
+PLIST_API void plist_from_xml(const char *plist_xml, uint32_t length, plist_t * plist)
+{
+    xmlDocPtr plist_doc = xmlParseMemory(plist_xml, length);
+    xmlNodePtr root_node = xmlDocGetRootElement(plist_doc);
+
+    xml_to_node(root_node, plist);
+    xmlFreeDoc(plist_doc);
+}
+
+========================================================================
+#49   label: 0  (AFTER the fix)
+project: gpac   commit: c88df2e202efad214c25b4e586f243b2038779ba
+CVE: CVE-2023-2838   CWE: CWE-125   function: gf_filter_get_stats   file: filter_session.c
+label-1 functions changed in this commit: 0
+------------------------------------------------------------------------
+GF_Err gf_filter_get_stats(GF_Filter *f, GF_FilterStats *stats)
+{
+	u32 i;
+	Bool set_name=GF_FALSE;
+	if (!stats || !f) return GF_BAD_PARAM;
+	memset(stats, 0, sizeof(GF_FilterStats));
+	stats->filter = f;
+	stats->filter_alias = f->multi_sink_target;
+	if (f->multi_sink_target) return GF_OK;
+	
+	stats->percent = f->status_percent>10000 ? -1 : (s32) f->status_percent;
+	stats->status = f->status_str;
+	stats->nb_pck_processed = f->nb_pck_processed;
+	stats->nb_bytes_processed = f->nb_bytes_processed;
+	stats->time_process = f->time_process;
+	stats->nb_hw_pck_sent = f->nb_hw_pck_sent;
+	stats->nb_pck_sent = f->nb_pck_sent;
+	stats->nb_bytes_sent = f->nb_bytes_sent;
+	stats->nb_tasks_done = f->nb_tasks_done;
+	stats->nb_errors = f->nb_errors;
+	stats->name = f->name;
+	stats->reg_name = f->freg->name;
+	stats->filter_id = f->id;
+	stats->done = f->removed || f->finalized;
+	if (stats->name && !strcmp(stats->name, stats->reg_name)) {
+		set_name=GF_TRUE;
+	}
+	stats->report_updated = f->report_updated;
+	f->report_updated = GF_FALSE;
+
+
+	if (!stats->nb_pid_out && stats->nb_pid_in) stats->type = GF_FS_STATS_FILTER_RAWOUT;
+	else if (!stats->nb_pid_in && stats->nb_pid_out) stats->type = GF_FS_STATS_FILTER_RAWIN;
+
+	stats->nb_pid_out = f->num_output_pids;
+	for (i=0; i<f->num_output_pids; i++) {
+		GF_FilterPid *pid = gf_list_get(f->output_pids, i);
+		stats->nb_out_pck += pid->nb_pck_sent;
+		if (pid->has_seen_eos) stats->in_eos = GF_TRUE;
+
+		if (pid->last_ts_sent.num * stats->last_ts_sent.den >= stats->last_ts
+    ...[cut, 3,141 characters in total]
+
+========================================================================
+#50   label: 0  (AFTER the fix)
+project: asterisk   commit: 85241bd22936cc15760fd1f65d16c98be7aeaf6d
+CVE: CVE-2024-35190   CWE: NVD-CWE-noinfo   function: ip_identify   file: res_pjsip_endpoint_identifier_ip.c
+label-1 functions changed in this commit: 9
+------------------------------------------------------------------------
+static struct ast_sip_endpoint *ip_identify(pjsip_rx_data *rdata)
+{
+	struct ast_sockaddr addr = { { 0, } };
+
+	ast_sockaddr_parse(&addr, rdata->pkt_info.src_name, PARSE_PORT_FORBID);
+	ast_sockaddr_set_port(&addr, rdata->pkt_info.src_port);
+
+	return common_identify(ip_identify_match_check, &addr);
+}
+
+========================================================================
+RUBRIC (write one letter per function in cvefixes_review_sheet.csv)
+
+  Y = this function looks like it could contain the security problem (or is the clearly fixed one)
+  N = this function looks unrelated (formatting, rename, comment, logging, helper)
+  ? = cannot tell without the patch
+
+Tip: you do not need to find the exact bug. Ask: does this look like code that parses input,
+copies memory, checks sizes, or handles pointers? Or just plumbing?

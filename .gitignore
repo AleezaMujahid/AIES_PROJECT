@@ -1,0 +1,11 @@
+@"
+.venv/
+data/
+models/
+papers/
+__pycache__/
+*.pyc
+*.joblib
+*.zip
+*.csv.gz
+"@ | Set-Content -Encoding utf8 .gitignore
