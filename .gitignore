@@ -1,10 +1,7 @@
 .venv/
-data/
-models/
+data/raw/
 papers/
 __pycache__/
 *.pyc
-*.joblib
 *.zip
-*.csv.gz
 .ipynb_checkpoints/

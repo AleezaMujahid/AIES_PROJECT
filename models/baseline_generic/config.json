@@ -1,0 +1,11 @@
+{
+  "model": "tfidf_logreg_generic",
+  "C": 0.1,
+  "threshold": 0.6369718747240671,
+  "max_chars": 20000,
+  "min_projects": 5,
+  "kept_identifiers": 8843,
+  "seed": 42,
+  "val_pr_auc": 0.1897974599673876,
+  "trained_on_rows": 129360
+}

@@ -1,0 +1,18 @@
+{
+  "model": "tfidf_logreg",
+  "C": 1.0,
+  "threshold": 0.6363464731472572,
+  "max_chars": 20000,
+  "token_pattern": "[A-Za-z_][A-Za-z0-9_]*|\\d+|->|==|!=|<=|>=|\\+\\+|--|&&|\\|\\||<<|>>|[^\\sA-Za-z0-9_]",
+  "ngram_range": [
+    1,
+    2
+  ],
+  "min_df": 3,
+  "max_features": 200000,
+  "class_weight": "balanced",
+  "seed": 42,
+  "val_pr_auc": 0.18833376582883213,
+  "val_prevalence": 0.05216450216450216,
+  "trained_on_rows": 129360
+}
