@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Analyze - CodeSentinel{% endblock %}
+{% block content %}
+<h1>Check a C/C++ function</h1>
+<p class="lead">Paste one function, press Analyze, and the result appears right below. The code is only read, never run or saved.</p>
+
+<div class="stack">
+
+  <!-- 1. input (top) -->
+  <section class="card" aria-label="Input">
+    <form method="post" action="{{ url_for('main.analyze') }}" id="analyze-form">
+      <div class="editor-head">
+        <h2>Function to analyze</h2>
+        <span class="counter" id="counter" data-max="{{ max_chars or 20000 }}">0 / {{ max_chars or 20000 }}</span>
+      </div>
+      <div class="editor">
+        <textarea name="code" id="code" spellcheck="false" autocomplete="off" autofocus
+          placeholder="void copy(char *s) {&#10;    char buf[8];&#10;    strcpy(buf, s);&#10;}">{{ code }}</textarea>
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit" id="go"><span class="spinner"></span><span id="go-label">Analyze</span></button>
+        <button class="btn ghost" type="button" id="clear">Clear</button>
+        <span class="hint">Ctrl + Enter to analyze</span>
+      </div>
+    </form>
+
+    {% if shown_example %}
+    <div class="loaded"><b>Example loaded:</b> {{ shown_example.title }}.
+      {% if shown_example.true_label is not none %}The dataset says this function is
+      <b>{{ 'vulnerable' if shown_example.true_label else 'not vulnerable' }}</b> (project: {{ shown_example.project }}).
+      Press Analyze and compare.{% else %}Press Analyze to see the rules react.{% endif %}</div>
+    {% endif %}
+
+    {% if groups %}
+    <div class="examples">
+      <h3>Try an example</h3>
+      <p class="muted">Click one to fill the box. The first two groups are real test functions the model never saw in training.</p>
+      <div class="eg-grid">
+      {% for label, items in groups %}
+      <div class="eg-row"><span>{{ label }}</span>
+        {% for e in items %}<a class="chip" href="{{ url_for('main.analyze', example=e.id) }}" title="{{ e.title }}"
+          {% if shown_example and shown_example.id == e.id %}aria-current="true"{% endif %}>{{ e.label }}</a>{% endfor %}
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 2. result (below the input) -->
+  <section class="card" aria-live="polite" aria-label="Result" id="result">
+  {% if error %}
+    <div class="panel">
+      <div class="notice err" style="margin:0"><b>Not analysed.</b> {{ error }}</div>
+      <p class="muted" style="margin:14px 0 0">Paste one complete C/C++ function (between 20 and {{ max_chars or 20000 }} characters) and try again.</p>
+    </div>
+  {% elif result %}
+    {% set pc = {'HIGH':'red','MEDIUM':'amber','LOW':'green'}[result.review_priority] %}
+    {% set pct = (result.model_score * 100)|round(1) %}
+    {% set tpct = (result.threshold * 100)|round(1) %}
+    <div class="panel">
+      <div class="result-grid">
+
+        <div>
+          <div class="verdict">
+            <div>
+              <h2>{{ result.prediction }}</h2>
+              <small>{{ 'The model score is at or above the threshold.' if result.flagged else 'The model score is below the threshold.' }}</small>
+            </div>
+            <span class="pill {{ pc }}" title="Review priority">Review priority: {{ result.review_priority|capitalize }}</span>
+          </div>
+
+          <div class="gauge" role="img" aria-label="Model score {{ '%.3f' % result.model_score }} against threshold {{ result.threshold }}">
+            <div class="gauge-head"><b>{{ '%.3f' % result.model_score }}</b><span>Model score (not a probability)</span></div>
+            <div class="gauge-track">
+              <div class="gauge-fill {{ 'flag' if result.flagged }}" style="width:{{ pct }}%"></div>
+              <div class="gauge-thr" style="left:calc({{ tpct }}% - 1px)"><span>threshold {{ result.threshold }}</span></div>
+            </div>
+            <div class="gauge-scale"><span>0</span><span>0.5</span><span>1</span></div>
+          </div>
+
+          <div class="reco"><b>What to do</b>{{ result.review_recommendation }}</div>
+          {% for w in result.warnings %}<div class="notice warn" style="margin:10px 0 0">{{ w }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <div class="section-title" style="margin-top:0"><h3>Rule matches</h3><span class="muted" style="font-size:.84rem">Separate from the model score</span></div>
+          {% if result.rule_findings %}
+            {% for f in result.rule_findings %}
+            <div class="rule w{{ f.review_weight }}">
+              <span class="rid">{{ f.rule_id }}</span><b>{{ f.description }}</b>
+              <p>{{ f.message }}</p>
+              <details><summary>What to do and what this rule cannot tell you</summary>
+                <p><b>Action:</b> {{ f.recommended_review_action }}</p>
+                <p><b>Limitation:</b> {{ f.limitation }}</p></details>
+            </div>
+            {% endfor %}
+          {% else %}<div class="none">No rule matched. That is not a guarantee that the code is secure.</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="section-title"><h3>Details</h3></div>
+      <dl class="facts" style="margin:0">
+        <div><dt>Model</dt><dd>{{ result.model.model_name }}</dd></div>
+        <div><dt>Version</dt><dd>{{ result.model.model_version }}</dd></div>
+        <div><dt>Input size</dt><dd>{{ result.input.characters }} characters, {{ result.input.lines }} lines{% if result.input.tokens %}, {{ result.input.tokens }} tokens{% endif %}</dd></div>
+        <div><dt>Coverage</dt><dd>{{ 'Cut at the model limit' if result.input.truncated else 'Whole function analysed' }}</dd></div>
+        <div><dt>Time</dt><dd>{{ result.inference_ms }} ms</dd></div>
+      </dl>
+
+      <div class="downloads">
+        <span class="muted" style="font-size:.88rem">Download the assessment:</span>
+        {% for fmt in ['json', 'csv'] %}
+        <form method="post" action="{{ url_for('main.export', fmt=fmt) }}">
+          <input type="hidden" name="code" value="{{ code }}">
+          <button class="btn ghost small" type="submit">{{ fmt|upper }}</button>
+        </form>
+        {% endfor %}
+      </div>
+      <details class="policy"><summary>How the review priority is decided</summary>
+        <div class="scroll" style="margin-top:8px"><table>
+          <tr><th>Model</th><th>Rule R-01</th><th>Priority</th></tr>
+          <tr><td>flagged</td><td>match</td><td>High (they agree)</td></tr>
+          <tr><td>flagged</td><td>no match</td><td>Medium (model only)</td></tr>
+          <tr><td>not flagged</td><td>match</td><td>Medium (rule only, they disagree)</td></tr>
+          <tr><td>not flagged</td><td>no match</td><td>Low (never a guarantee)</td></tr>
+        </table></div></details>
+      <p class="disclaimer">{{ result.disclaimer }}</p>
+    </div>
+  {% else %}
+    <div class="empty">
+      <h2>Your result appears here</h2>
+      <p class="muted" style="margin:0">Paste a function above, or pick an example, then press Analyze. You will get:</p>
+      <ul>
+        <li><b>A model score and a threshold</b><span class="muted">Shown on one bar, so you can see how close the call was.</span></li>
+        <li><b>Rule matches</b><span class="muted">Risky calls such as gets or strcpy, with the line number.</span></li>
+        <li><b>A review priority</b><span class="muted">High, medium or low, based on whether the model and the rules agree.</span></li>
+      </ul>
+    </div>
+  {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var ta = document.getElementById('code'), counter = document.getElementById('counter');
+  var form = document.getElementById('analyze-form'), go = document.getElementById('go');
+  var max = parseInt(counter.getAttribute('data-max'), 10);
+  function count() {
+    counter.textContent = ta.value.length.toLocaleString() + ' / ' + max.toLocaleString();
+    counter.classList.toggle('over', ta.value.length > max);
+  }
+  ta.addEventListener('input', count); count();
+  document.getElementById('clear').addEventListener('click', function () { ta.value = ''; count(); ta.focus(); });
+  ta.addEventListener('keydown', function (e) {
+    if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey) {          // Tab inserts 4 spaces
+      e.preventDefault();
+      var s = ta.selectionStart, t = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + '    ' + ta.value.slice(t);
+      ta.selectionStart = ta.selectionEnd = s + 4; count();
+    }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); form.requestSubmit(); }
+  });
+  form.addEventListener('submit', function () {
+    go.disabled = true; document.getElementById('go-label').textContent = 'Analyzing';
+  });
+  window.addEventListener('pageshow', function () {          // back button: re-enable the button
+    go.disabled = false; document.getElementById('go-label').textContent = 'Analyze';
+  });
+  // After analyzing, bring the result (which sits below the input) into view.
+  var res = document.getElementById('result');
+  if (res && res.querySelector('.panel')) res.scrollIntoView({ block: 'start' });
+})();
+</script>
+{% endblock %}

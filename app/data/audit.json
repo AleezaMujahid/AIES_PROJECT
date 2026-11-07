@@ -1,0 +1,317 @@
+{
+ "cleaning": [
+  {
+   "Dataset": "BigVul",
+   "Step": "info: commit ids tidied (suffix removed or lowercased)",
+   "Before": "",
+   "Removed": "",
+   "After": "1,329",
+   "Note": ""
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "info: shortened commit ids expanded to the full hash",
+   "Before": "",
+   "Removed": "",
+   "After": "51",
+   "Note": "only when exactly one full id starts with it"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "info: commit ids still not a full 40-character hash",
+   "Before": "",
+   "Removed": "",
+   "After": "628",
+   "Note": "left as they are; they still work as a grouping key"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "info: commit ids tidied (suffix removed or lowercased)",
+   "Before": "",
+   "Removed": "",
+   "After": "0",
+   "Note": ""
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "info: shortened commit ids expanded to the full hash",
+   "Before": "",
+   "Removed": "",
+   "After": "0",
+   "Note": "only when exactly one full id starts with it"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "info: commit ids still not a full 40-character hash",
+   "Before": "",
+   "Removed": "",
+   "After": "0",
+   "Note": "left as they are; they still work as a grouping key"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "0. input rows",
+   "Before": "188,636",
+   "Removed": "0",
+   "After": "188,636",
+   "Note": "rows read from the raw file"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "1. remove empty or missing code",
+   "Before": "188,636",
+   "Removed": "0",
+   "After": "188,636",
+   "Note": ""
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "2. remove invalid labels",
+   "Before": "188,636",
+   "Removed": "0",
+   "After": "188,636",
+   "Note": "label must be 0 or 1"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "3. keep only C and C++",
+   "Before": "188,636",
+   "Removed": "0",
+   "After": "188,636",
+   "Note": ""
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "4. remove code shorter than 20 characters",
+   "Before": "188,636",
+   "Removed": "47",
+   "After": "188,589",
+   "Note": ""
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "5. remove conflicting labels",
+   "Before": "188,589",
+   "Removed": "2,538",
+   "After": "186,051",
+   "Note": "1,243 code groups with both labels; all their rows removed, saved for review"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "6. remove exact duplicates",
+   "Before": "186,051",
+   "Removed": "1,251",
+   "After": "184,800",
+   "Note": "same code ignoring whitespace; first copy kept"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "0. input rows",
+   "Before": "20,060",
+   "Removed": "0",
+   "After": "20,060",
+   "Note": "rows read from the raw file"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "1. remove empty or missing code",
+   "Before": "20,060",
+   "Removed": "0",
+   "After": "20,060",
+   "Note": ""
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "2. remove invalid labels",
+   "Before": "20,060",
+   "Removed": "0",
+   "After": "20,060",
+   "Note": "label must be 0 or 1"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "3. keep only C and C++",
+   "Before": "20,060",
+   "Removed": "0",
+   "After": "20,060",
+   "Note": ""
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "4. remove code shorter than 20 characters",
+   "Before": "20,060",
+   "Removed": "7",
+   "After": "20,053",
+   "Note": ""
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "5. remove conflicting labels",
+   "Before": "20,053",
+   "Removed": "1,209",
+   "After": "18,844",
+   "Note": "603 code groups with both labels; all their rows removed, saved for review"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "6. remove exact duplicates",
+   "Before": "18,844",
+   "Removed": "345",
+   "After": "18,499",
+   "Note": "same code ignoring whitespace; first copy kept"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "7. remove functions that also appear in BigVul",
+   "Before": "18,499",
+   "Removed": "2,764",
+   "After": "15,735",
+   "Note": "CVEfixes is the second-source set, so the overlap is removed from it"
+  },
+  {
+   "Dataset": "both",
+   "Step": "info: commits present in both datasets",
+   "Before": "",
+   "Removed": "",
+   "After": "1,439",
+   "Note": "NOT removed; decide how to handle when freezing the splits"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "info: rows with no usable date",
+   "Before": "",
+   "Removed": "",
+   "After": "13,853",
+   "Note": "matters for a chronological split"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "info: rows with no usable date",
+   "Before": "",
+   "Removed": "",
+   "After": "0",
+   "Note": "matters for a chronological split"
+  },
+  {
+   "Dataset": "BigVul",
+   "Step": "FINAL rows kept",
+   "Before": "",
+   "Removed": "",
+   "After": "184,800",
+   "Note": "label 1 (vulnerable): 9,640; label 0: 175,160"
+  },
+  {
+   "Dataset": "CVEfixes",
+   "Step": "FINAL rows kept",
+   "Before": "",
+   "Removed": "",
+   "After": "15,735",
+   "Note": "label 1 (vulnerable): 5,394; label 0: 10,341"
+  },
+  {
+   "Dataset": "both",
+   "Step": "FINAL rows kept (both datasets)",
+   "Before": "",
+   "Removed": "",
+   "After": "200,535",
+   "Note": ""
+  }
+ ],
+ "splits": [
+  {
+   "Split": "train",
+   "Rows": "129,360",
+   "Vulnerable": "6,748",
+   "% vulnerable": "5.2%",
+   "Commits": "2,801",
+   "Projects": "248"
+  },
+  {
+   "Split": "val",
+   "Rows": "27,720",
+   "Vulnerable": "1,446",
+   "% vulnerable": "5.2%",
+   "Commits": "587",
+   "Projects": "110"
+  },
+  {
+   "Split": "test",
+   "Rows": "27,720",
+   "Vulnerable": "1,446",
+   "% vulnerable": "5.2%",
+   "Commits": "586",
+   "Projects": "110"
+  },
+  {
+   "Split": "cvefixes_external",
+   "Rows": "11,909",
+   "Vulnerable": "4,754",
+   "% vulnerable": "39.9%",
+   "Commits": "2,448",
+   "Projects": "571"
+  }
+ ],
+ "split_checks": [
+  "No BigVul commit appears in more than one split: passed",
+  "No sample id or code hash appears in more than one split: passed",
+  "No CVEfixes commit also appears in BigVul: passed"
+ ],
+ "split_projects": [
+  "**train**: chrome 41%, linux 25%, android 5%, php 2%, qemu 2%",
+  "**val**: chrome 40%, linux 23%, android 4%, opensc 2%, htcondor 2%",
+  "**test**: chrome 43%, linux 27%, php 3%, ghostscript 2%, android 2%",
+  "**cvefixes_external**: tensorflow 13%, linux 8%, vim 4%, relic 4%, gpac 3%"
+ ],
+ "token_length": [
+  {
+   "Group": "all",
+   "Functions": "30,000",
+   "Median": "170",
+   "90th pct": "854",
+   "95th pct": "1423",
+   "99th pct": "3899",
+   "Max": "119,343",
+   "Longer than 512": "18.6%"
+  },
+  {
+   "Group": "split: train",
+   "Functions": "30,000",
+   "Median": "170",
+   "90th pct": "854",
+   "95th pct": "1423",
+   "99th pct": "3899",
+   "Max": "119,343",
+   "Longer than 512": "18.6%"
+  },
+  {
+   "Group": "label 0 (safe)",
+   "Functions": "28,463",
+   "Median": "162",
+   "90th pct": "782",
+   "95th pct": "1262",
+   "99th pct": "3130",
+   "Max": "119,343",
+   "Longer than 512": "17.1%"
+  },
+  {
+   "Group": "label 1 (vulnerable)",
+   "Functions": "1,537",
+   "Median": "453",
+   "90th pct": "2852",
+   "95th pct": "5119",
+   "99th pct": "15154",
+   "Max": "90,254",
+   "Longer than 512": "46.2%"
+  },
+  {
+   "Group": "without chrome and linux",
+   "Functions": "10,197",
+   "Median": "238",
+   "90th pct": "1371",
+   "95th pct": "2323",
+   "99th pct": "7413",
+   "Max": "119,343",
+   "Longer than 512": "28.6%"
+  }
+ ]
+}

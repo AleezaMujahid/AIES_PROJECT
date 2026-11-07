@@ -1,0 +1,8 @@
+# Person C: packages for the Flask app and tests.
+# Install together with Person A/B's requirements.txt:
+#     pip install -r requirements.txt -r requirements-app.txt
+flask>=3.0
+pytest>=8.0
+# Needed only for the real CodeBERT model (not for fallback/baseline mode):
+torch
+transformers
