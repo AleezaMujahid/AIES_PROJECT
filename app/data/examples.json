@@ -1,0 +1,86 @@
+[
+ {
+  "id": "bigvul-179284",
+  "title": "BigVul test #1: true label vulnerable (label 1)",
+  "project": "linux",
+  "true_label": 1,
+  "code": "static struct sk_buff *xfrm_state_netlink(struct sk_buff *in_skb,\n\t\t\t\t\t  struct xfrm_state *x, u32 seq)\n {\n \tstruct xfrm_dump_info info;\n \tstruct sk_buff *skb;\n \n \tskb = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);\n \tif (!skb)\n\t\treturn ERR_PTR(-ENOMEM);\n\n\tinfo.in_skb = in_skb;\n\tinfo.out_skb = skb;\n \tinfo.nlmsg_seq = seq;\n \tinfo.nlmsg_flags = 0;\n \n\tif (dump_one_state(x, 0, &info)) {\n \t\tkfree_skb(skb);\n\t\treturn NULL;\n \t}\n \n \treturn skb;\n}\n"
+ },
+ {
+  "id": "bigvul-182560",
+  "title": "BigVul test #2: true label vulnerable (label 1)",
+  "project": "linux",
+  "true_label": 1,
+  "code": "static void sas_probe_devices(struct work_struct *work)\n {\n \tstruct domain_device *dev, *n;\n\tstruct sas_discovery_event *ev = to_sas_discovery_event(work);\n\tstruct asd_sas_port *port = ev->port;\n\tclear_bit(DISCE_PROBE, &port->disc.pending);\n \n \t/* devices must be domain members before link recovery and probe */\n \tlist_for_each_entry(dev, &port->disco_list, disco_list_node) {\n\t\tspin_lock_irq(&port->dev_list_lock);\n\t\tlist_add_tail(&dev->dev_list_node, &port->dev_list);\n\t\tspin_unlock_irq(&port->dev_list_lock);\n\t}\n\n\tsas_probe_sata(port);\n\n\tlist_for_each_entry_safe(dev, n, &port->disco_list, disco_list_node) {\n\t\tint err;\n\n\t\terr = sas_rphy_add(dev->rphy);\n\t\tif (err)\n\t\t\tsas_fail_probe(dev, __func__, err);\n\t\telse\n\t\t\tlist_del_init(&dev->disco_list_node);\n\t}\n}\n"
+ },
+ {
+  "id": "bigvul-185742",
+  "title": "BigVul test #3: true label vulnerable (label 1)",
+  "project": "chrome",
+  "true_label": 1,
+  "code": " bool MessageLoop::DoWork() {\n  if (!nestable_tasks_allowed_) {\n     return false;\n   }\n\n  for (;;) {\n    ReloadWorkQueue();\n    if (work_queue_.empty())\n      break;\n\n    do {\n      PendingTask pending_task = std::move(work_queue_.front());\n      work_queue_.pop();\n\n      if (pending_task.task.IsCancelled()) {\n#if defined(OS_WIN)\n        DecrementHighResTaskCountIfNeeded(pending_task);\n#endif\n      } else if (!pending_task.delayed_run_time.is_null()) {\n        int sequence_num = pending_task.sequence_num;\n        TimeTicks delayed_run_time = pending_task.delayed_run_time;\n        AddToDelayedWorkQueue(std::move(pending_task));\n        if (delayed_work_queue_.top().sequence_num == sequence_num)\n          pump_->ScheduleDelayedWork(delayed_run_time);\n      } else {\n        if (DeferOrRunPendingTask(std::move(pending_task)))\n          return true;\n      }\n    } while (!work_queue_.empty());\n  }\n\n  return false;\n }\n"
+ },
+ {
+  "id": "bigvul-183613",
+  "title": "BigVul test #4: true label vulnerable (label 1)",
+  "project": "chrome",
+  "true_label": 1,
+  "code": "File* DataObjectItem::GetAsFile() const {\n  if (Kind() != kFileKind)\n    return nullptr;\n\n  if (source_ == kInternalSource) {\n    if (file_)\n      return file_.Get();\n    DCHECK(shared_buffer_);\n    return nullptr;\n  }\n\n  DCHECK_EQ(source_, kClipboardSource);\n  if (GetType() == kMimeTypeImagePng) {\n    SkBitmap bitmap = SystemClipboard::GetInstance().ReadImage(\n        mojom::ClipboardBuffer::kStandard);\n\n     SkPixmap pixmap;\n     bitmap.peekPixels(&pixmap);\n \n    Vector<uint8_t> png_data;\n     SkPngEncoder::Options options;\n    options.fZLibLevel = 1;  // Fastest compression.\n     if (!ImageEncoder::Encode(&png_data, pixmap, options))\n       return nullptr;\n \n    auto data = std::make_unique<BlobData>();\n    data->SetContentType(kMimeTypeImagePng);\n    data->AppendBytes(png_data.data(), png_data.size());\n    const uint64_t length = data->length();\n    auto blob = BlobDataHandle::Create(std::move(data), length);\n    return File::Create(\"image.png\", base::Time::Now().ToDoubleT() * 1000.0,\n                        std::move(blob));\n  }\n\n  return nullptr;\n}\n"
+ },
+ {
+  "id": "bigvul-76845",
+  "title": "BigVul test #5: true label not vulnerable (label 0)",
+  "project": "ovs",
+  "true_label": 0,
+  "code": "decode_OFPAT_RAW_SET_TP_DST(ovs_be16 port,\n                            enum ofp_version ofp_version OVS_UNUSED,\n                            struct ofpbuf *out)\n{\n    ofpact_put_SET_L4_DST_PORT(out)->port = ntohs(port);\n    return 0;\n}\n"
+ },
+ {
+  "id": "bigvul-18607",
+  "title": "BigVul test #6: true label not vulnerable (label 0)",
+  "project": "linux",
+  "true_label": 0,
+  "code": "static void unmap_underlying_metadata_blocks(struct block_device *bdev,\n\t\t\tsector_t block, int count)\n{\n\tint i;\n\tfor (i = 0; i < count; i++)\n                unmap_underlying_metadata(bdev, block + i);\n}\n"
+ },
+ {
+  "id": "bigvul-167578",
+  "title": "BigVul test #7: true label not vulnerable (label 0)",
+  "project": "chrome",
+  "true_label": 0,
+  "code": "bool RenderFrameHostManager::ReinitializeRenderFrame(\n    RenderFrameHostImpl* render_frame_host) {\n  DCHECK(!render_frame_host->IsRenderFrameLive());\n\n  CreateOpenerProxies(render_frame_host->GetSiteInstance(), frame_tree_node_);\n\n  if (!frame_tree_node_->parent()) {\n    DCHECK(!GetRenderFrameProxyHost(render_frame_host->GetSiteInstance()));\n    if (!InitRenderView(render_frame_host->render_view_host(), nullptr))\n      return false;\n  } else {\n    if (!InitRenderFrame(render_frame_host))\n      return false;\n\n    RenderFrameProxyHost* proxy_to_parent = GetProxyToParent();\n    if (proxy_to_parent) {\n      const gfx::Size* size = render_frame_host->frame_size()\n                                  ? &*render_frame_host->frame_size()\n                                  : nullptr;\n      GetProxyToParent()->SetChildRWHView(render_frame_host->GetView(), size);\n    }\n  }\n\n  DCHECK(render_frame_host->IsRenderFrameLive());\n  return true;\n}\n"
+ },
+ {
+  "id": "bigvul-3914",
+  "title": "BigVul test #8: true label not vulnerable (label 0)",
+  "project": "poppler",
+  "true_label": 0,
+  "code": "StreamPredictor::StreamPredictor(Stream *strA, int predictorA,\n\t\t\t\t int widthA, int nCompsA, int nBitsA) {\n  str = strA;\n  predictor = predictorA;\n  width = widthA;\n  nComps = nCompsA;\n  nBits = nBitsA;\n  predLine = NULL;\n  ok = gFalse;\n\n  nVals = width * nComps;\n  pixBytes = (nComps * nBits + 7) >> 3;\n  rowBytes = ((nVals * nBits + 7) >> 3) + pixBytes;\n  if (width <= 0 || nComps <= 0 || nBits <= 0 ||\n      nComps > gfxColorMaxComps ||\n      nBits > 16 ||\n      width >= INT_MAX / nComps ||      // check for overflow in nVals\n      nVals >= (INT_MAX - 7) / nBits) { // check for overflow in rowBytes\n    return;\n  }\n  predLine = (Guchar *)gmalloc(rowBytes);\n  memset(predLine, 0, rowBytes);\n  predIdx = rowBytes;\n\n  ok = gTrue;\n}\n"
+ },
+ {
+  "id": "cvefixes-153891328820053",
+  "title": "CVEfixes pair: before the fix",
+  "project": "tensorflow",
+  "true_label": 1,
+  "code": "const TfLiteTensor* GetOptionalInputTensor(const TfLiteContext* context,\n                                           const TfLiteNode* node, int index) {\n  const bool use_tensor = index < node->inputs->size &&\n                          node->inputs->data[index] != kTfLiteOptionalTensor;\n  if (use_tensor) {\n    return GetMutableInput(context, node, index);\n  }\n  return nullptr;\n}"
+ },
+ {
+  "id": "cvefixes-205476680018961",
+  "title": "CVEfixes pair: after the fix",
+  "project": "tensorflow",
+  "true_label": 0,
+  "code": "const TfLiteTensor* GetOptionalInputTensor(const TfLiteContext* context,\n                                           const TfLiteNode* node, int index) {\n  return GetInput(context, node, index);\n}"
+ },
+ {
+  "id": "demo-gets",
+  "title": "Hand-written demo: gets() call (rule R-01)",
+  "project": "demo",
+  "true_label": null,
+  "code": "void read_name(void) {\n    char name[16];\n    gets(name);\n    printf(\"Hello %s\\n\", name);\n}"
+ },
+ {
+  "id": "demo-comment",
+  "title": "Hand-written demo: gets only in comment/string (no R-01)",
+  "project": "demo",
+  "true_label": null,
+  "code": "void safe_read(void) {\n    char name[16];\n    /* never use gets(name) here */\n    const char *msg = \"gets( is banned\";\n    fgets(name, sizeof(name), stdin);\n    puts(msg);\n}"
+ }
+]

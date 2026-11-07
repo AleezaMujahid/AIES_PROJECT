@@ -1,0 +1,10 @@
+{% macro table(rows, hl_key=None, hl_val=None) %}
+{% if rows %}
+<div class="scroll"><table>
+<tr>{% for h in rows[0].keys() %}<th>{{ h }}</th>{% endfor %}</tr>
+{% for row in rows %}
+<tr class="{{ 'hl' if hl_key and row.get(hl_key, '').startswith(hl_val) }}">{% for v in row.values() %}<td>{{ v }}</td>{% endfor %}</tr>
+{% endfor %}
+</table></div>
+{% else %}<p class="muted">No data found. Run <code>python Scripts/10_build_app_data.py</code>.</p>{% endif %}
+{% endmacro %}

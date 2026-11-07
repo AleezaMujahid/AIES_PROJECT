@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_table.html" import table %}
+{% block title %}Data audit - CodeSentinel{% endblock %}
+{% block content %}
+<h1>Where the data comes from</h1>
+<p class="lead">Counts from the saved reports (<code>cleaning_audit.md</code>, <code>split_report.md</code>, <code>token_length.md</code>). The raw data was never modified.</p>
+
+{% if finals %}
+<div class="stats">
+  {% for f in finals %}<div class="card"><b>{{ f.After }}</b><span>{{ f.Dataset }} after cleaning{% if f.Note %}: {{ f.Note }}{% endif %}</span></div>{% endfor %}
+</div>
+{% endif %}
+
+<h2>Splits</h2>
+<p class="muted" style="margin-top:0">BigVul is split by commit, so the same commit never appears in two splits. CVEfixes is kept apart as outside data.</p>
+{{ table(a.splits) }}
+<h3>Leakage checks</h3>
+<ul class="clean">{% for c in a.split_checks %}<li>{{ c }}</li>{% endfor %}</ul>
+<h3>Biggest projects in each split</h3>
+<ul class="clean">{% for p in a.split_projects %}<li>{{ p }}</li>{% endfor %}</ul>
+
+<h2>More detail</h2>
+<details class="fold"><summary>Cleaning audit, row count after every step</summary><div>{{ table(a.cleaning, 'Step', 'FINAL') }}</div></details>
+<details class="fold"><summary>Token length against the 512-token model limit</summary><div>{{ table(a.token_length) }}</div></details>
+
+<h2>Figures</h2>
+<div class="figs">
+  <img class="fig" src="{{ url_for('static', filename='figures/class_balance.png') }}" alt="Class balance">
+  <img class="fig" src="{{ url_for('static', filename='figures/token_length.png') }}" alt="Token length">
+  <img class="fig" src="{{ url_for('static', filename='figures/code_length.png') }}" alt="Code length">
+  <img class="fig" src="{{ url_for('static', filename='figures/top_projects.png') }}" alt="Top projects">
+</div>
+{% endblock %}

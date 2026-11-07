@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}CodeSentinel{% endblock %}</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230d6e6a' d='M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="{{ url_for('main.analyze') }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 4.5 5.6v5.6c0 4.6 3.2 8.7 7.5 10.3 4.3-1.6 7.5-5.7 7.5-10.3V5.6L12 2.5z"/><path d="m8.8 12 2.4 2.4 4-4.6"/></svg>
+    CodeSentinel
+  </a>
+  <nav class="tabs" aria-label="Main">
+    <a href="{{ url_for('main.analyze') }}" {% if request.endpoint == 'main.analyze' %}aria-current="page"{% endif %}>Analyze</a>
+    <a href="{{ url_for('main.models') }}" {% if request.endpoint == 'main.models' %}aria-current="page"{% endif %}>Model comparison</a>
+    <a href="{{ url_for('main.data_audit') }}" {% if request.endpoint == 'main.data_audit' %}aria-current="page"{% endif %}>Data audit</a>
+    <a href="{{ url_for('main.research') }}" {% if request.endpoint == 'main.research' %}aria-current="page"{% endif %}>Research and limits</a>
+  </nav>
+  {% if info is defined and info %}
+    {% if info.loaded %}
+    <div class="status {{ 'warn' if info.is_fallback else '' }}" title="{{ info.model_version }}"><i></i>
+      <b>{{ 'Baseline model' if info.is_fallback else 'CodeBERT' }}</b><small>threshold {{ info.threshold }}</small></div>
+    {% else %}<div class="status off"><i></i><b>No model</b></div>{% endif %}
+  {% endif %}
+</div></header>
+<main><div class="wrap">
+{% if info is defined and info %}
+  {% if info.error %}<div class="notice err"><b>No model loaded.</b> {{ info.error }}</div>
+  {% elif info.note %}<div class="notice warn"><b>Fallback mode.</b> {{ info.note }}</div>{% endif %}
+{% endif %}
+{% block content %}{% endblock %}
+</div></main>
+<footer><div class="wrap">CodeSentinel screens one C/C++ function at a time. Results are model scores and rule matches, not proof of a vulnerability and not a security guarantee. Submitted code is never run or stored.</div></footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

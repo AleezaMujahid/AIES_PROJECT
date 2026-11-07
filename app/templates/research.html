@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Research and limits - CodeSentinel{% endblock %}
+{% block content %}
+<h1>Research and limits</h1>
+<p class="lead">What this project builds on, how the rules work, and what the tool cannot do.</p>
+
+<h2>References</h2>
+<div class="card pad"><ul class="clean" style="margin:0">
+<li><b>Main methodology paper:</b> Ding et al., "Vulnerability Detection with Code Language Models: How Far Are We?", ICSE 2025 (DOI <code>10.1109/ICSE55347.2025.00038</code>). Guides label quality, deduplication, realistic splits and evaluation. Code and data: PrimeVul.</li>
+<li><b>Supporting paper:</b> Walischewski, Zizzo, Webster, "SIVA: Self Improving Vulnerability Agent" (NeurIPS 2025 workshop). Used for motivation only. Its synthetic examples are not reproduced, because this project uses no AI-generated data.</li>
+<li><b>BigVul</b> (2020): "A C/C++ Code Vulnerability Dataset with Code Changes and CVE Summaries". Main training data.</li>
+<li><b>CVEfixes</b> (2021, release v1.0.8): "CVEfixes: Automated Collection of Vulnerabilities and Their Fixes from Open-Source Software". Outside test data only.</li>
+<li>Check the licence in each official repository and keep the attribution in the report.</li>
+</ul></div>
+
+<h2>Expert rules</h2>
+{% for id, ru in rules.items() %}
+<div class="rule w{{ ru.review_weight }}">
+  <span class="rid">{{ ru.rule_id }}</span><b>{{ ru.description }}</b> <span class="muted">(review weight {{ ru.review_weight }})</span>
+  <p><b>Fires when:</b> {{ ru.condition }}</p>
+  <details open><summary>Action and limitation</summary>
+    <p><b>Action:</b> {{ ru.recommended_review_action }}</p>
+    <p><b>Limitation:</b> {{ ru.limitation }}</p></details>
+</div>
+{% endfor %}
+<p class="muted">R-01 looks for calls to: {% for name in risky %}<code>{{ name }}</code> {% endfor %}</p>
+
+<h2>Known limitations</h2>
+<div class="card pad"><ul class="clean" style="margin:0">
+{% for l in r.limitations %}<li>{{ l }}</li>{% endfor %}
+<li>BigVul has a whitespace shortcut: 56.1% of vulnerable but only 1.9% of safe training functions have trailing whitespace. The final CodeBERT model was retrained on normalised code, so normalisation is mandatory at inference.</li>
+<li>The tool checks one C/C++ function at a time. It does not scan whole repositories, generate exploits or repair code.</li>
+<li>Rule matches are text-based heuristics, not a full parser. A match is not proof of a vulnerability.</li>
+<li>Not flagged never means secure.</li>
+</ul></div>
+{% endblock %}

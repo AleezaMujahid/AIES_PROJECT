@@ -6,3 +6,5 @@ __pycache__/
 *.pyc
 *.zip
 .ipynb_checkpoints/
+models/codebert/
+.pytest_cache/

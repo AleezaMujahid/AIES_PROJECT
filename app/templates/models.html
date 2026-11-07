@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_table.html" import table %}
+{% block title %}Model comparison - CodeSentinel{% endblock %}
+{% block content %}
+<h1>How good is the detector?</h1>
+<p class="lead">Results from the saved evaluation (<code>reports/before_after.md</code>) on the BigVul test set (27,720 functions, 5.2% vulnerable). The test set was opened once. Scores are model scores, not calibrated probabilities.</p>
+
+<div class="takeaways">
+  <div class="card"><b>Accuracy is misleading</b>Guessing "safe" every time is right about 95% of the time, yet it finds no vulnerabilities at all.</div>
+  <div class="card"><b>Fine-tuning helped a little</b>CodeBERT went from random (PR-AUC 0.045) to above chance (0.151). The simple TF-IDF baseline is about as good, and the gap is not significant.</div>
+  <div class="card"><b>It does not transfer</b>On outside data (CVEfixes) both models are at chance. The detector is weak, so treat every result as a hint for a human reviewer.</div>
+</div>
+
+<h2>Accuracy against recall and F1</h2>
+<div class="card bars">
+  <div class="bars-key"><span><i class="k-acc"></i>Accuracy</span><span><i class="k-rec"></i>Recall (share of real vulnerabilities found)</span><span><i class="k-f1"></i>F1</span></div>
+  {% for b in bars %}
+  <div class="bm"><b>{{ b.name }}</b>
+    <div class="line"><span>Accuracy</span><div class="trk"><i class="k-acc" style="width:{{ (b.accuracy*100)|round(1) }}%"></i></div><span>{{ '%.3f' % b.accuracy }}</span></div>
+    <div class="line"><span>Recall</span><div class="trk"><i class="k-rec" style="width:{{ (b.recall*100)|round(1) }}%"></i></div><span>{{ '%.3f' % b.recall }}</span></div>
+    <div class="line"><span>F1</span><div class="trk"><i class="k-f1" style="width:{{ (b.f1*100)|round(1) }}%"></i></div><span>{{ '%.3f' % b.f1 }}</span></div>
+  </div>
+  {% endfor %}
+  <p class="muted" style="margin:0;font-size:.86rem">Every bar uses the full 0 to 1 scale, so short bars are the honest picture.</p>
+</div>
+
+<h2>Test results in full</h2>
+{{ table(r.test, 'model', 'CodeBERT') }}
+{% for l in r.bootstrap_lines %}<p class="muted" style="margin:6px 0">{{ l }}</p>{% endfor %}
+<p class="muted" style="margin:0;font-size:.86rem">Bootstrap over rows, 500 resamples. An interval that includes 0 means no clear difference.</p>
+
+<h2>More detail</h2>
+<details class="fold"><summary>Confusion matrices (test set)</summary><div>{{ table(r.test_confusion) }}</div></details>
+<details class="fold"><summary>Validation, by epoch</summary><div>{{ table(r.validation) }}</div></details>
+<details class="fold"><summary>Test slices (project mix and 512-token cut)</summary><div>{{ table(r.slices) }}</div></details>
+<details class="fold"><summary>Outside data: CVEfixes (never used for training or tuning)</summary><div>
+  {{ table(r.cvefixes) }}<div style="height:10px"></div>{{ table(r.cvefixes_confusion) }}</div></details>
+<details class="fold"><summary>Same function before and after a fix</summary><div>
+  <p class="muted">"score before &gt; after" is about 0.5 for a model that cannot tell the two versions apart.</p>{{ table(r.pairs) }}</div></details>
+<details class="fold"><summary>Training setup</summary><div><ul class="clean">{% for s in r.setup %}<li>{{ s }}</li>{% endfor %}</ul></div></details>
+
+<h2>Precision-recall curve (baseline, validation)</h2>
+<img class="fig" style="max-width:640px" src="{{ url_for('static', filename='figures/baseline_pr_curve.png') }}" alt="Baseline precision-recall curve">
+{% endblock %}
