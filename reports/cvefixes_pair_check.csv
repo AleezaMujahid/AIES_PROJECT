@@ -1,0 +1,5 @@
+set,model,pairs,score before > after,"correct (before flagged, after not)",both flagged,neither flagged,"reversed (after flagged, before not)"
+CVEfixes strict,TF-IDF + LogReg (generic),2548,0.345,0.011,0.418,0.539,0.032
+CVEfixes strict,CodeBERT (after),2548,0.336,0.022,0.383,0.566,0.03
+CVEfixes full,TF-IDF + LogReg (generic),4145,0.322,0.009,0.385,0.571,0.035
+CVEfixes full,CodeBERT (after),4145,0.366,0.025,0.339,0.607,0.029
